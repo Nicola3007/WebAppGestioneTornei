@@ -7,3 +7,4 @@ let a;
 let b;
 let x;
 let zz;
+let s;
