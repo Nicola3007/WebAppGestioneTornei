@@ -5,3 +5,4 @@ const port2 =5001
 let c;
 let a;
 let b;
+let x;
