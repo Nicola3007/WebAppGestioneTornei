@@ -1,41 +1,19 @@
-require('dotenv').config(); //x dare valore a .env
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const mongoose = require('mongoose');
 const express = require('express');
-const cors = require('cors');
-
-
-const authRoutes = require('./routes/authRoutes');
-const authMiddleware = require('./middleware/authMiddleware');
-
+const http = require('http');
 const app = express();
+require('dotenv').config();
+const server = http.createServer(app);
+const PORT = process.env.PORT || 5000; //porta 5000 di default
 
-const port = process.env.PORT || 3000;
-app.use(cors()); //Permette al tuo server di rispondere alle richieste provenienti da altri domini/origini.
-app.use(express.json()); //capire il corpo (body) delle richieste HTTP che arrivano in formato JSON.
-
-app.use('/api/auth', authRoutes);
-
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => {
-        console.log('Connesso a MongoDB');
-        app.listen(process.env.PORT, () => {
-            console.log(`Server avviato sulla porta ${process.env.PORT}`);
-        });
-    })
-    .catch((err) => {
-        console.log('Errore connessione MongoDB:', err);
-    });
+app.use(express.json())
 
 
-//se avessi voluto usare async/await
-// async function startServer(){
-// try{
-// await mongoose.connect(process.env.MONGO_URI);
-//      console.log('Connesso a MongoDB');
-//  app.listen( process.env.PORT, (){
-//      console.log('Il server avviato su porta ${process.env.PORT}');
-//      });
-//  }catch (errore){
-//         console.log('Errore di connessione a mongoDB:' , errore);
-//      }
-//    }
-//      startServer();
+// colleghiamo il database
+mongoose.connect(process.env.CONNECTION_LINK)
+const db = mongoose.connection
+
+// Apriamo una connessione con il database e mettiamo il server in ascolto
+db.once('open', () => server.listen(PORT, () => console.log(`App connessa al DB e in ascolto sulla porta ${process.env.PORT}`))
+)
