@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
 
-const matchModelSchema = new mongoose.Schema({
+const matchSchema = new mongoose.Schema({
     tournament: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Tournament',
-        required: true,
+        required: [true, "il nome del torneo è obbligatorio"],
     },
     game: {
         type: String,
-        required: true,
+        required: [true, "La fase del torneo è obbligatoria"],
         enum: ['Sedicesimi', 'Ottavi', 'Quarti', 'Semifinale', 'FInale', 'Giorni'],
     },
     teamHome: {
@@ -23,10 +23,12 @@ const matchModelSchema = new mongoose.Schema({
     },
     scoreHome: {
         type: Number,
+        min: 0,
         default: 0,
     },
     scoreAway: {
         type: Number,
+        min: 0,
         default: 0,
     },
     status: {
@@ -34,8 +36,10 @@ const matchModelSchema = new mongoose.Schema({
         default: 'In programma',
         enum: ['In programma', 'In corso', 'Terminata'],
     },
-})
+    date:{
+        type: Date,
+        required: true,
+    },
+    })
 
-
-
-module.exports = mongoose.model('matchModel' , matchModelSchema);
+module.exports = mongoose.model('match' , matchSchema);

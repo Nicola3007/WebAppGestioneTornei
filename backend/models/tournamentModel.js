@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 
-const tournamentModelSchema = new mongoose.Schema({
+const tournamentSchema = new mongoose.Schema({
     name :{
         type: String,
         required: true,
         unique: true,
+        trim: true,
+        lowercase: true,
     },
     isPrivate :{
         type: Boolean,
@@ -63,7 +65,13 @@ const tournamentModelSchema = new mongoose.Schema({
     },
     teams: [
         {
-            teamName: String,  // Nome della squadra
+            teamName: {
+                type: String, // Nome della squadra
+                required : true,
+                trim: true,
+                lowercase: true,
+                unique: true,
+            },
             Capitain: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User'
@@ -74,10 +82,14 @@ const tournamentModelSchema = new mongoose.Schema({
                 default: 'pending'
             }
         }
-    ]
+    ],
+    matches: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Match'
+    }],
 })
 
-tournamentModelSchema.pre('validate', async function (next) {
+tournamentSchema.pre('validate', async function (next) {
 
     try {
         const oggi = new Date();
@@ -98,4 +110,4 @@ tournamentModelSchema.pre('validate', async function (next) {
     }
 });
 
-module.exports = mongoose.model('Tournament', tournamentModelSchema);
+module.exports = mongoose.model('Tournament', tournamentSchema);
