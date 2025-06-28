@@ -1,0 +1,9 @@
+per generare ACCESS_TOKEN_SECRET e REFRESH_TOKEN_SECRET nel file .env si può fare in questa maniera
+
+nel terminale scrivere: node
+dopo di che per generare una stringa random di 64 caratteri (esadecimale) scrivere: require('crypto').randomBytes(64).toString('hex')
+
+incollare il risultato come stringa segreta
+
+Gli access token servono per mantenere l'accesso senza dover rieffettuare il login, accedere alle risorse e altro.
+Hanno scadenza breve (5min-15min) e quando scadono entra in gioco il refresh token che fornisce un altro access token. Il refresh token ha scadenza lunga (giorni)
