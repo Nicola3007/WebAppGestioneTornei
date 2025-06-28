@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs')
 
+
+
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -28,6 +30,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    tournamentsOrganized:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Tournament'
+    }],
     //teams sono tutte le squadre create e di conseguenza tutti i tornei a cui si ha partecipato
     teams: [{
         name:{
@@ -35,19 +41,18 @@ const userSchema = new mongoose.Schema({
             required: true,
             trim: true
         },
-        /*
         tournaments:[{
         tournament: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Tournament'
-        }
+        },
         paymentStatus:{
         type: Sting,
         enum: ['pending', 'paid', 'rejected'],
         default: 'pending'
         },
         paymentDate: Date
-        }] */
+        }]
     }]
     //per la sicurezza va capito se va aggiunto qualcosa
 })

@@ -61,6 +61,20 @@ const tournamentModelSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    teams: [
+        {
+            teamName: String,  // Nome della squadra
+            Capitain: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User'
+            },
+            paymentStatus: {
+                type: String,
+                enum: ['pending', 'paid', 'rejected'],
+                default: 'pending'
+            }
+        }
+    ]
 })
 
 tournamentModelSchema.pre('validate', async function (next) {
@@ -84,4 +98,4 @@ tournamentModelSchema.pre('validate', async function (next) {
     }
 });
 
-module.exports = mongoose.model('tournamentModel', tournamentModelSchema);
+module.exports = mongoose.model('Tournament', tournamentModelSchema);
