@@ -43,7 +43,7 @@ exports.login = async (req, res, next)=>{
     try{
         const {email, password} = req.body;
         if(!email || !password){
-            res.status(400).send({error: 'inserire tutti i dati'});
+            res.status(400).send({error: 'Tutti i campi sono obbligatori'});
         }
 
         const findUser = await user.findOne({email: email}).select('+password')
@@ -51,7 +51,7 @@ exports.login = async (req, res, next)=>{
         if(!findUser || !rightPassword){
             res.status(400).send({message: 'email o password errati'})
         }
-        res.status(200).send({message: 'login oeseguito correttamente'}).json({
+        res.status(200).send({message: 'login eseguito correttamente'}).json({
             status: 'success',
             //token,
             data: {

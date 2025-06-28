@@ -142,3 +142,116 @@ exports.updateTournament = async (req,res) => {
         console.error("Errore aggiornamento torneo:", error);
         res.status(500).json({message: "Errore del server"});
     }}
+
+
+//Cerca tornei x nome,data,luogo, tipo, privato, gratis/pagamento, numero squadre
+exports.searchTournament = async (req, res) => {
+try {
+    const { name, location, date, type, isPrivate, quotaIscrizione, maxTeams } = req.query;
+    const query = {};
+
+    // Cerca x nome
+    if (name) {
+        query.name = { $regex: name, $options: "i" };
+    }
+
+    // Cerca per luogo
+    if (location) {
+        query.location = { $regex: location, $options: "i" };
+    }
+
+    // cerca x data
+    if (date) {
+        const parsedDate = new Date(date);
+        if (isNaN(parsedDate)) {
+            return res.status(400).json({ message: "Data non valida" });
+        }
+        const nextDay = new Date(parsedDate);
+        nextDay.setDate(parsedDate.getDate() + 1);
+        query.date = { $gte: parsedDate, $lt: nextDay };
+    }
+
+    // cerca x tipo
+    if (type) {
+        query.type = { $regex: type, $options: "i" };
+    }
+
+    // Cerca per privato/pubblico
+    if (isPrivate !== undefined) {
+        if (isPrivate === "true") {
+            query.isPrivate = true; //privato
+        } else if (isPrivate === "false") {
+            query.isPrivate = false; //pubblico
+        } else {
+            return res.status(400).json({ message: "Tipo torneo non trovato" });
+        }
+    }
+
+    // Cerca per gratis o pagamento
+    if (quotaIscrizione !== undefined) {
+        if (quotaIscrizione === "true") {
+            query.quotaIscrizione = 0; // tornei gratis
+        } else if (quotaIscrizione === "false") {
+            query.quotaIscrizione = { $gt: 0 }; // tornei a pagamento
+        } else {
+            return res.status(400).json({ message: "Quota non trovata" });
+        }
+    }
+
+    // cerca per numero di squadre
+    if (maxTeams) {
+        const max = Number(maxTeams);
+        if (isNaN(max)) {
+            return res.status(400).json({ message: "Numero squadre non trovato" });
+        }
+        query.maxTeams = { $gte: max };
+    }
+
+    const tournaments = await Tournament.find(query);
+
+    if (tournaments.length === 0) {
+        return res.status(404).json({ message: "Nessun torneo trovato con i seguenti filtri" });
+    }
+
+    res.status(200).json(tournaments);
+
+} catch (error) {
+    console.error("Errore durante la ricerca del torneo:", error);
+    res.status(500).json({ message: "Errore del server" });
+}
+};
+
+//Iscrizione torneo
+exports.joinTournament = async (req, res) => {
+    try{
+        const userId = req.userId;
+        const { tournamentName, teamName } = req.params;
+
+        const tournament = await Tournament.findOne({name: tournamentName});
+        if (!tournament) {
+            return res.status(404).json({message: "Torneo non trovato"});
+        }
+
+        const team = await Team.findOne({name: teamName});
+        if (!team) {
+            return res.status(404).json({message: "Squadra non trovata"});
+        }
+
+        if(tournament.teams.includes(team._id)){
+            return res.status(400).json({message: "Squadra già iscritta al torneo"});
+            }
+
+        if(tournament.teams.length >= tournament.maxTeams){
+            return res.status(400).json({message: "Numero massimo di squadre raggiunto"});
+        }
+
+        tournament.team.push(team._id);
+        await tournament.save();
+
+        res.status(200).json({message:"Iscrizione avvenuta con successo", torneo: tournament});
+
+    }catch (error) {
+        console.error("Errore durante l'iscrizione al torneo:", error);
+        res.status(500).json({ message: "Errore del server" });
+    }
+};

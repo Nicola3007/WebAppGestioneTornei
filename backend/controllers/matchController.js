@@ -61,3 +61,27 @@ exports.createMatch = async (req, res) => {
         return res.status(400).json({message:"Errore del server durante la careazione del match."});
     }
 }
+
+
+//Elimina partita
+exports.deleteMatch = async (req, res) => {
+    try{
+        const userId = req.userId;
+        const matchId = req.params.matchId;
+
+        const match = await Match.findById(matchId);
+        if(!match){
+            return res.status(404).json({message: "Match non trovato"});
+        }
+
+        if(match.createdBy.toString() !== userId){
+            return res.status(403).json({message: "Utente non autorizzato ad eliminare il match!"});
+        }
+
+        await Match.findByIdAndDelete(matchId);
+        res.status(200).json({message: "Match eliminato con successo!"});
+    }catch(error){
+        console.error("Errore del server: ",error);
+        res.status(500).json({message: "Errore del server durante l'eliminazione del match"})
+    };
+}
