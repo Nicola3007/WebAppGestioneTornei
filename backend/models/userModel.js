@@ -57,6 +57,7 @@ const userSchema = new mongoose.Schema({
     //per la sicurezza va capito se va aggiunto qualcosa
 })
 
+
 //middleware pre-save per hashare la password alla creazione di un nuovo utente (o alla modifica della password)
 
 userSchema.pre('save', async function (next) {
@@ -70,6 +71,10 @@ userSchema.pre('save', async function (next) {
     }catch(err){
         next(err);
     }
+    //funzione per comparare le password criptate
+    userSchema.methods.comparePassword = async function (candidatePassword) {
+        return bcrypt.compare(candidatePassword, this.password);
+    };
 })
 
 
