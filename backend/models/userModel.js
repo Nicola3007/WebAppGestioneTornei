@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema({
         ref: 'Tournament'
         },
         paymentStatus:{
-        type: Sting,
+        type: String,
         enum: ['pending', 'paid', 'rejected'],
         default: 'pending'
         },
