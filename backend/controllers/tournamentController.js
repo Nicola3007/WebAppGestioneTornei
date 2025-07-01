@@ -1,12 +1,13 @@
 const Tournament = require('./models/torunamentModel');
 const Match = require('./models/matchModel');
 const User = require('./models/userModel');
+const Team = require('./models/teamModel');
 
 //Creare un torneo
 exports.createTournament = async (req, res) => {
     try {
         const {
-            name, isPrivate, startDate, endDate,type, location, deadline, description, prize, quotaIscrizione, maxTeams, createdAt
+            name, isPrivate, startDate, endDate,type, location, deadline, description, prize, quotaIscrizione, maxTeams
         } = req.body;
         const userId = req.userId;
 
@@ -14,7 +15,7 @@ exports.createTournament = async (req, res) => {
             return res.status(400).json({ message: "Tutti i campi obbligatori devono essere compilati." });
         }
 
-        const newTournamnet = new Tournament({
+        const newTournament = new Tournament({
             name,
             isPrivate,
             startDate,
@@ -26,7 +27,7 @@ exports.createTournament = async (req, res) => {
             prize,
             quotaIscrizione,
             maxTeams,
-            createdAt,
+            createdAt: new Date(),
             createdBy: userId,
         });
 
@@ -63,9 +64,9 @@ exports.createTournament = async (req, res) => {
 exports.deleteTournament = async (req,res) => {
     try{
         const userId = req.userId;
-        const tournamentName = req.params.tournamentName;
+        const tournamentId = req.params.id;
 
-        const tournament = await Tournament.findOne({ name : tournamentName});
+        const tournament = await Tournament.findById(tournamentId);
         if(!tournament){
             return res.status(400).json({message: "Torneo non trovato"});
         }
@@ -74,7 +75,7 @@ exports.deleteTournament = async (req,res) => {
             return res.status(403).json({ message: "Utente non autorizzato ad eliminare questo post!"});
         }
 
-        await Tournament.deleteOne({ name: tournamentName});
+        await Tournament.findByIdAndDelete(tournamentId);
         res.status(200).json({message: "Torneo eliminato con successo"});
 
     } catch(error){
@@ -86,11 +87,11 @@ exports.deleteTournament = async (req,res) => {
 //Aggiornare un torneo
 exports.updateTournament = async (req,res) => {
     try{
-        const tournamentName = req.params.tournamentName;
+        const tournamentId = req.params.id;
         const userId = req.userId;
-        const {location, startDate, endDate, deadline,description, prize, quotaIscrizione ,maxTeams} = req.body;
+        const updates = req.body;
 
-        const tournament = await Tournament.findOne({name: tournamentName});
+        const tournament = await Tournament.findById(tournamentId);
 
         if(!tournament){
             return res.status(400).json({message: "Torneo non trovato"});
@@ -100,43 +101,23 @@ exports.updateTournament = async (req,res) => {
             return res.status(403).json({message: "Non sei autorizzato a modifcare il torneo!"});
         }
 
-        if(tournament.createdBy.toString() == userId) {
-            if (['In corso', 'Completato'].includes(tournament.status)) {
-                return res.status(400).json({message: "Non puoi modificare un torneo in corso"});
+        if (['In corso', 'Completato'].includes(tournament.status)) {
+            return res.status(400).json({message: "Non puoi modificare un torneo in corso"});
+        }
+
+        const modifiche = [ "location", "startDate", "endDate", "deadline", "description", "prize", "quotaIscrizione", "maxTeams" ];
+        modifiche.forEach( field => {
+            if (updates[field] !== undefined){
+                tournament[field] = updates[field];
             }
-        }
-
-        if(location !== undefined){
-            tournament.location = location;
-        }
-        if(startDate !== undefined){
-            tournament.startDate = startDate;
-        }
-        if(endDate !== undefined){
-            tournament.endDate = endDate;
-        }
-        if(deadline !== undefined){
-            tournament.deadline = deadline;
-        }
-        if(description !== undefined){
-            tournament.description = description;
-        }
-        if(prize !== undefined){
-            tournament.prize = prize;
-        }
-        if(quotaIscrizione !== undefined){
-            tournament.quotaIscrizione = quotaIscrizione;
-        }
-        if(maxTeams !== undefined){
-            tournament.maxTeams = maxTeams;
-        }
+        })
 
 
+        await tournament.validate();
         const updatedTournament = await tournament.save();
-        const populatedTournament = await Tournament.findOne({name: updatedTournament.name}).populate('createdBy', 'username');
+        const populatedTournament = await Tournament.findById(updatedTournament._id).populate('createdBy', 'username');
 
         res.json({ message: "Torneo aggiornato con successo!", tournament: populatedTournament });
-
 
     }catch(error){
         console.error("Errore aggiornamento torneo:", error);
@@ -168,7 +149,7 @@ try {
         }
         const nextDay = new Date(parsedDate);
         nextDay.setDate(parsedDate.getDate() + 1);
-        query.date = { $gte: parsedDate, $lt: nextDay };
+        query.startDate = { $gte: parsedDate, $lt: nextDay };
     }
 
     // cerca x tipo
@@ -190,9 +171,9 @@ try {
     // Cerca per gratis o pagamento
     if (quotaIscrizione !== undefined) {
         if (quotaIscrizione === "true") {
-            query.quotaIscrizione = 0; // tornei gratis
+            query.quotaIscrizione = { $gt: 0}; // tornei gratis
         } else if (quotaIscrizione === "false") {
-            query.quotaIscrizione = { $gt: 0 }; // tornei a pagamento
+            query.quotaIscrizione = 0; // tornei a pagamento
         } else {
             return res.status(400).json({ message: "Quota non trovata" });
         }
@@ -225,30 +206,75 @@ try {
 exports.joinTournament = async (req, res) => {
     try{
         const userId = req.userId;
-        const { tournamentName, teamName } = req.params;
+        const { tournamentId} = req.params;
+        const { teamName } = req.body;
 
-        const tournament = await Tournament.findOne({name: tournamentName});
+        const tournament = await Tournament.findById(tournamentId);
         if (!tournament) {
             return res.status(404).json({message: "Torneo non trovato"});
         }
-
-        const team = await Team.findOne({name: teamName});
-        if (!team) {
-            return res.status(404).json({message: "Squadra non trovata"});
+        if (tournament.status !== 'In attesa') {
+            return res.status(400).json({ message: "Iscrizioni chiuse per questo torneo" });
         }
 
-        if(tournament.teams.includes(team._id)){
-            return res.status(400).json({message: "Squadra già iscritta al torneo"});
-            }
+        if(new Date(tournament.deadline) < new Date() ) {
+            return res.status(400).json({message: "Termine per le iscrizioni scaduto"});
+        }
+
+        if(tournament.isPrivate){
+            return res.status(403).json({message: "Torneo privato: iscrizione su invito"});
+        }
 
         if(tournament.teams.length >= tournament.maxTeams){
             return res.status(400).json({message: "Numero massimo di squadre raggiunto"});
         }
 
-        tournament.team.push(team._id);
+        const alreadyTeamName = await Team.findOne({
+            _id: { $in: tournament.teams },
+            name: teamName.toLowerCase()
+        });
+        if (alreadyTeamName) {
+            return res.status(400).json({ message: "Nome squadra già utilizzato in questo torneo" });
+        }
+
+        const userTeams = await Team.find({ captain: userId });
+        const isAlreadyRegistered = tournament.teams.some(teamId =>
+            userTeams.some(userTeam => userTeam._id.equals(teamId))
+        );
+        if(isAlreadyRegistered){
+            return res.status(403).json({message: "Hai già iscritto una squadra"});
+        }
+
+           const  newTeam = new Team({
+                name: teamName.toLowerCase(),
+                captain: userId,
+                paymentStatus: tournament.quotaIscrizione ? "In attesa" : "Pagato",
+                createdAt : new Date(),
+            });
+            await newTeam.save();
+
+
+
+        tournament.teams.push(newTeam._id);
+
+        if (tournament.teams.length === tournament.maxTeams) {
+            tournament.status = 'Iscrizioni chiuse';
+        }
+
         await tournament.save();
 
-        res.status(200).json({message:"Iscrizione avvenuta con successo", torneo: tournament});
+        // Popola i dati per la risposta
+        const updatedTournament = await Tournament.findById(tournamentId)
+            .populate({
+                path: 'teams',
+                select: 'name captain paymentStatus'
+            });
+
+        res.status(200).json({
+            message: "Iscrizione avvenuta con successo",
+            tournament: updatedTournament,
+            team: newTeam
+        });
 
     }catch (error) {
         console.error("Errore durante l'iscrizione al torneo:", error);
