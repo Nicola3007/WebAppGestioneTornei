@@ -1,0 +1,111 @@
+body {
+    background: #fff;
+    color: #111;
+    font-family: 'Inter', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+.register-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+}
+
+.register-container h1 {
+    margin-bottom: 2rem;
+    font-size: 2.2rem;
+    letter-spacing: 2px;
+    color: #111;
+    font-weight: 700;
+}
+
+.register-container form {
+    background: #111;
+    padding: 2.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 28px rgba(0,0,0,0.10);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 300px;
+    width: 100%;
+    max-width: 370px;
+}
+
+.register-container label {
+    color: #fff;
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+}
+
+.register-container input {
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    background: #f8f8f8;
+    color: #111;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.register-container input:focus {
+    box-shadow: 0 0 0 2px #111;
+}
+
+.register-container button {
+    background: #fff;
+    color: #111;
+    padding: 0.85rem 0;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.07rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    margin-top: 0.3rem;
+}
+
+.register-container button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.register-container button:hover:not(:disabled) {
+    background: #111;
+    color: #fff;
+    border: 1px solid #fff;
+}
+
+.error {
+    color: #f44336;
+    background: #fff0f0;
+    border: 1px solid #f44336;
+    border-radius: 7px;
+    padding: 0.5rem 1rem;
+    margin-top: -1rem;
+    font-size: 0.98rem;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+.login {
+    margin-top: 1.3rem;
+    text-align: center;
+}
+.login a {
+    color: #111;
+    text-decoration: underline;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+.login a:hover {
+    color: #222;
+}

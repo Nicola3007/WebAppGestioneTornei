@@ -9,6 +9,8 @@ require('dotenv').config();
 
 //questo controller serve per gestire il refresh token e quindi principalmente per generare acces token quando invocato
 
+
+//funziona
 exports.handleRefreshToken = async (req, res) =>{
     const cookies = req.cookies;
     if (!cookies?.jwt) { //controllo se ho cookie e nel caso se sono jwt
@@ -16,27 +18,30 @@ exports.handleRefreshToken = async (req, res) =>{
     }
     console.log(cookies.jwt); //per il debug
     const refreshTokenCookie = cookies.jwt
-
+    console.log(refreshTokenCookie);
     try {
         //trovo l'utente nel db
         const foundUser = await refreshToken.findOne({token: refreshTokenCookie});
         if (!foundUser) {
-            res.sendStatus(403).json({message: 'non autorizzato'})
+           return  res.status(403).json({message: 'non autorizzato'})
         }
 //valutazione del refresh token
         jwt.verify(
-            refreshToken,
+            refreshTokenCookie,
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
-                if (err || foundUser._id !== decoded._id) {
-                    return res.send(403).json({message: 'non autorizzato, refresh token non valido'})
+                console.log(decoded.userId);
+                console.log(err);
+                console.log(foundUser.userId.toString());
+                if (err || foundUser.userId.toString() !== decoded.userId) {
+                    return res.status(403).json({message: 'non autorizzato, refresh token non valido'})
                 }
 
                 //se il refresh token è valido genero un nuovo access token
                 const accessToken = jwt.sign(
                     {'_id': decoded._id},
                     process.env.ACCESS_TOKEN_SECRET,
-                    {expiresIn: '30s'} //va modificato a 15 minuti
+                    {expiresIn: '15m'} //va modificato a 15 minuti
                 )
                 res.json({accessToken: accessToken})
             }

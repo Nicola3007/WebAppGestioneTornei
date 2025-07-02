@@ -2,12 +2,12 @@ const express = require('express');
 const route = express.Router();
 const userController = require('../controllers/userController')
 const refreshTokenController = require('../controllers/refreshTokenController')
+const verifyToken = require('../middlewares/verifyJWT')
 
-
-route.post('/registazione',userController.createUser)
+route.post('/registrazione',userController.createUser)
 route.post('/login', userController.login);
-route.post('/logout', userController.logout);
-route.get('/personalArea', userController.getMe)
+route.post('/logout', verifyToken, userController.logout);
+route.get('/personalArea',verifyToken, userController.getMe)
 
 route.post('/refresh', refreshTokenController.handleRefreshToken)
 

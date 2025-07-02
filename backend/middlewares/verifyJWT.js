@@ -4,7 +4,7 @@ require('dotenv').config();
 const verifyJWT = (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) { // controllo che gli accessToken comincino con 'Bearer'
-        res.status(401).send({message: 'errore di autorizzazione'});
+        return res.status(401).send({message: 'errore di autorizzazione'});
     }
     console.log(authHeader); //serve per il debug si può togliere
     const token = authHeader.split(' ')[1]; // il token è nella prima posizione dopo lo spazio ( nella posizione 0 c'è scritto Bearer)
@@ -12,7 +12,7 @@ const verifyJWT = (req, res, next) => {
         if (err) {
             return res.status(403).send({message: 'token non valido'});
         }
-        req._id = decoded._id //decoded contiene l'informazione decodificata
+        req.userId = decoded.userId//decoded contiene l'informazione decodificata
         next()
     })
 

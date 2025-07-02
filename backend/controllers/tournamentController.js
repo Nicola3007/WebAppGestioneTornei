@@ -1,9 +1,9 @@
-const Tournament = require('./models/torunamentModel');
-const Match = require('./models/matchModel');
-const User = require('./models/userModel');
-const Team = require('./models/teamModel');
+const Tournament = require('../models/tournamentModel');
+const Match = require('../models/matchModel');
+const User = require('../models/userModel');
 
-//Creare un torneo
+
+//CREARE UN TORNEO--> funziona, solo da capire la festione dei tabelloni che non andrebbe fatta qua
 exports.createTournament = async (req, res) => {
     try {
         const {
@@ -32,8 +32,9 @@ exports.createTournament = async (req, res) => {
         });
 
         await newTournament.save();
+
         //Genera tabbellone vuoti
-        switch (newTournament.type) {
+        /*switch (newTournament.type) {
             case 'Eliminazione diretta':
                 await generateTabellone(newTournament);
                 break;
@@ -43,7 +44,8 @@ exports.createTournament = async (req, res) => {
             case 'Gironi + Fase ad eliminazione diretta':
                 await generateChampions(newTournament);
                 break;
-        }
+        }   è commentato perchè probabilmente questa aprte non va qua, comunque è da fare in un secondo momento*/
+
         const populatedTournament = await Tournament.findById(newTournament._id).populate('createdBy', 'name');
 
         res.status(201).json({
@@ -60,7 +62,7 @@ exports.createTournament = async (req, res) => {
     }
 }
 
-//Eliminare un torneo
+//ELIMINARE UN TORNEO--> funziona
 exports.deleteTournament = async (req,res) => {
     try{
         const userId = req.userId;
@@ -72,7 +74,7 @@ exports.deleteTournament = async (req,res) => {
         }
         //Verifico se l'utente è il creatore del torneo
         if(tournament.createdBy.toString() !== userId){
-            return res.status(403).json({ message: "Utente non autorizzato ad eliminare questo post!"});
+            return res.status(403).json({ message: "Utente non autorizzato ad eliminare questo torneo!"});
         }
 
         await Tournament.findByIdAndDelete(tournamentId);
@@ -84,7 +86,7 @@ exports.deleteTournament = async (req,res) => {
     }
 }
 
-//Aggiornare un torneo
+//AGGIORNARE UN TORNEO-->funziona
 exports.updateTournament = async (req,res) => {
     try{
         const tournamentId = req.params.id;
@@ -112,8 +114,6 @@ exports.updateTournament = async (req,res) => {
             }
         })
 
-
-        await tournament.validate();
         const updatedTournament = await tournament.save();
         const populatedTournament = await Tournament.findById(updatedTournament._id).populate('createdBy', 'username');
 
@@ -125,7 +125,7 @@ exports.updateTournament = async (req,res) => {
     }}
 
 
-//Cerca tornei x nome,data,luogo, tipo, privato, gratis/pagamento, numero squadre
+//CERCA TORNEI x nome,data,luogo, tipo, privato, gratis/pagamento, numero squadre-->funziona, da testare comunque col frontend
 exports.searchTournament = async (req, res) => {
 try {
     const { name, location, date, type, isPrivate, quotaIscrizione, maxTeams } = req.query;
@@ -171,9 +171,9 @@ try {
     // Cerca per gratis o pagamento
     if (quotaIscrizione !== undefined) {
         if (quotaIscrizione === "true") {
-            query.quotaIscrizione = { $gt: 0}; // tornei gratis
-        } else if (quotaIscrizione === "false") {
             query.quotaIscrizione = 0; // tornei a pagamento
+        } else if (quotaIscrizione === "false") {
+            query.quotaIscrizione = { $gt: 0}; // tornei gratis
         } else {
             return res.status(400).json({ message: "Quota non trovata" });
         }
@@ -202,12 +202,12 @@ try {
 }
 };
 
-//Iscrizione torneo
+//ISCRIZIONE TORNEO--> funziona, si potrebbe aggiungere controllo per il pagamento inserendo un middleware e aggiungere nel torneo l'opzione "isFree", nel caso farlo dopo
 exports.joinTournament = async (req, res) => {
     try{
         const userId = req.userId;
-        const { tournamentId} = req.params;
-        const { teamName } = req.body;
+        const {tournamentId} = req.params;
+        const {teamName} = req.body;
 
         const tournament = await Tournament.findById(tournamentId);
         if (!tournament) {
@@ -229,33 +229,29 @@ exports.joinTournament = async (req, res) => {
             return res.status(400).json({message: "Numero massimo di squadre raggiunto"});
         }
 
-        const alreadyTeamName = await Team.findOne({
-            _id: { $in: tournament.teams },
-            name: teamName.toLowerCase()
-        });
+        const alreadyTeamName = tournament.teams.find(team=> team.name.toLowerCase() === teamName.toLowerCase());
         if (alreadyTeamName) {
             return res.status(400).json({ message: "Nome squadra già utilizzato in questo torneo" });
         }
 
-        const userTeams = await Team.find({ captain: userId });
-        const isAlreadyRegistered = tournament.teams.some(teamId =>
-            userTeams.some(userTeam => userTeam._id.equals(teamId))
-        );
-        if(isAlreadyRegistered){
+        const alreadyRegistered = tournament.teams.some(team => team.captain === userId);
+        if (alreadyRegistered) {
             return res.status(403).json({message: "Hai già iscritto una squadra"});
         }
 
-           const  newTeam = new Team({
+        if(alreadyRegistered){
+            return res.status(403).json({message: "Hai già iscritto una squadra"});
+        }
+
+           const  newTeam = {
                 name: teamName.toLowerCase(),
                 captain: userId,
                 paymentStatus: tournament.quotaIscrizione ? "In attesa" : "Pagato",
                 createdAt : new Date(),
-            });
-            await newTeam.save();
+            };
 
+            tournament.teams.push(newTeam); //inserisco il nuovo team
 
-
-        tournament.teams.push(newTeam._id);
 
         if (tournament.teams.length === tournament.maxTeams) {
             tournament.status = 'Iscrizioni chiuse';
@@ -263,16 +259,9 @@ exports.joinTournament = async (req, res) => {
 
         await tournament.save();
 
-        // Popola i dati per la risposta
-        const updatedTournament = await Tournament.findById(tournamentId)
-            .populate({
-                path: 'teams',
-                select: 'name captain paymentStatus'
-            });
-
         res.status(200).json({
             message: "Iscrizione avvenuta con successo",
-            tournament: updatedTournament,
+            tournament: tournament,
             team: newTeam
         });
 

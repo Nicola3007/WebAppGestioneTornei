@@ -5,17 +5,26 @@ const http = require('http');
 const cookieParser = require("cookie-parser");
 const app = express();
 const userRoute = require('./routes/userRoute');
+const tournamentRoute = require('./routes/tournamentsRoute');
 require('dotenv').config();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3000; //porta 3000 di default
+
+const cors = require('cors')
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true })) //per le richieste URL-encoded (vedere se serve)
 app.use(cookieParser()) // per fare il parsing dei cookie, ovvero prendere i cookie presenti in una richiesta http e trasformarli in oggetti javascript
 
+app.use(cors({
+    origin: 'http://localhost:5174',
+    credentials: true
+}));
+
 //routes
 
 app.use('/api/user', userRoute)
+app.use('/api/tournaments', tournamentRoute)
 
 // colleghiamo il database
 mongoose.connect(process.env.CONNECTION_LINK)

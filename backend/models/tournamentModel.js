@@ -88,8 +88,22 @@ const tournamentSchema = new mongoose.Schema({
         default: Date.now,
     },
     teams: [{
+        name: {
+            type: String,
+            required: true,
+            trim: true,
+            lowercase: true
+        },
+        captain : {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Team'
+            ref: 'User',
+            required: true
+        },
+        paymentStatus: {
+            type: String,
+            enum: ['Pagato', 'In attesa', 'Rifiutato'],
+            default: 'In attesa'
+        }
         }],
     matches: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -109,7 +123,7 @@ tournamentSchema.pre('validate', async function (next) {    try {
             this.invalidate('endDate', 'La data di fine deve essere successiva alla data di inizio');
         }
 
-        if (this.isModified('deadline') && (this.deadline <= today || this.deadline >= this.startDate)) {
+        if (this.isModified('deadline') && (this.deadline <= oggi || this.deadline >= this.startDate)) {
             this.invalidate('deadline', 'La scadenza iscrizioni deve essere compresa tra oggi e la data di inizio');
         }
 

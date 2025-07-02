@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs')
-
+const Team = require('../models/teamModel');
 
 
 const userSchema = new mongoose.Schema({
@@ -23,7 +23,8 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, "L'password è obbligatoria"],
-        minlength: [8, "la password deve avere almeno 8 caratteri"]
+        minlength: [8, "la password deve avere almeno 8 caratteri"],
+        select: false
     },
      //serve per identificare l'organizzatore di un torneo
     isOrganizer:{
@@ -36,23 +37,8 @@ const userSchema = new mongoose.Schema({
     }],
     //teams sono tutte le squadre create e di conseguenza tutti i tornei a cui si ha partecipato
     teams: [{
-        name:{
-            type: String,
-            required: true,
-            trim: true
-        },
-        tournaments:[{
-        tournament: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Tournament'
-        },
-        paymentStatus:{
-        type: String,
-        enum: ['pending', 'paid', 'rejected'],
-        default: 'pending'
-        },
-        paymentDate: Date
-        }]
+        ref: 'Team'
     }]
     //per la sicurezza va capito se va aggiunto qualcosa
 })
@@ -71,11 +57,10 @@ userSchema.pre('save', async function (next) {
     }catch(err){
         next(err);
     }
-    //funzione per comparare le password criptate
-    userSchema.methods.comparePassword = async function (candidatePassword) {
-        return bcrypt.compare(candidatePassword, this.password);
-    };
 })
-
+//funzione per comparare le password criptate
+userSchema.methods.comparePassword = async function (candidatePassword) {
+    return bcrypt.compare(candidatePassword, this.password);
+};
 
 module.exports = mongoose.model('User', userSchema);
