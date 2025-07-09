@@ -1,0 +1,91 @@
+.tournament-card {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    padding: 1rem;
+    width: 100%;
+    max-width: 350px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.tournament-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.badge-open {
+    background-color: #0f172a;
+    color: white;
+}
+
+.badge-closed {
+    background-color: #e2e8f0;
+    color: #555;
+}
+
+.location, .date {
+    font-size: 14px;
+    color: #555;
+    margin: 0.4rem 0;
+}
+
+.details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 0.4rem;
+}
+
+.quote-premio {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 0.6rem;
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.privacy {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+}
+
+.pubblico {
+    background-color: #0f172a;
+    color: white;
+}
+
+.privato {
+    background-color: #e2e8f0;
+    color: #333;
+}
+
+.subscribe-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    background-color: #0f172a;
+    color: white;
+    cursor: pointer;
+}
+
+.subscribe-button:disabled {
+    background-color: #999;
+    cursor: not-allowed;
+}
