@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true })) //per le richieste URL-encoded (
 app.use(cookieParser()) // per fare il parsing dei cookie, ovvero prendere i cookie presenti in una richiesta http e trasformarli in oggetti javascript
 
 app.use(cors({
-    origin: 'http://localhost:5174',
+    origin: 'http://localhost:5175',
     credentials: true
 }));
 

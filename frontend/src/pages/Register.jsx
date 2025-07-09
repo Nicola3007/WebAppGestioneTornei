@@ -5,7 +5,9 @@ import './login.css'
 
 function Register() {
 
-    const API_URL = import.meta.env.VITE_API_BASE_URL;
+    const API_URL = `${import.meta.env.VITE_API_USER_URL}`
+
+    console.log('da register: '+ API_URL);
 
     const [registerForm, setRegisterForm]=useState({
         username: '',
@@ -34,7 +36,7 @@ function Register() {
         }
 
         try{
-           const response = await fetch(`${API_URL}/api/user/registrazione`, {
+           const response = await fetch(`${API_URL}/registrazione`, {
                method: 'POST',
                headers: {
                    'Content-Type': 'application/json',
@@ -77,7 +79,7 @@ function Register() {
                     <button type='submit' disabled={registerForm.loading}>{!registerForm.loading? 'Registrati':'Attendi'}</button>
                      {registerForm.error === 'none' && <div className='success'>Utente registrato correttamente!</div>}
                      {redirect && <Navigate to='/login' />}
-                     {registerForm.error === ''? null: <div className='error'>{registerForm.error}</div>}
+                     {registerForm.error === ''||'none'? null: <div className='error'>{registerForm.error}</div>}
 
                 </form>
                 <div className='register'> <Link to='/login'>Hai già un account? Accedi</Link></div>

@@ -80,7 +80,7 @@ exports.login = async (req, res)=>{
 
         res.cookie('jwt', refreshToken, {    // creiamo un cookie inserendo nome del cookie, valore inserito e delle opzioni tra cui
             httpOnly: true,                 //httpOnly (per renderlo non disponibile a javascript e quindi più sicuro),
-            sameSite: 'Strict',            //sameSite che a prevenire CSRF e maxAge per quando scade(in ms)
+            sameSite: 'lax', //sameSite che serv a prevenire CSRF e maxAge per quando scade(in ms)--> è inserito lax perchè frontend e beckend girano su porte diverse e il cookie in questo caso con samSite Strict non viene inviato
             maxAge: 7*24*60*60*1000
         });
 
@@ -107,10 +107,13 @@ exports.login = async (req, res)=>{
 
 //LOGOUT-->corretto
 exports.logout = async (req, res)=>{
-    //nel frontend va eliminato l'accesso token
+    //nel frontend va eliminato l'access token
+    console.log('comincia il logout');
     const cookies = req.cookies
     const refreshTokenCookie = cookies.jwt
+    console.log(refreshTokenCookie)
     if(!cookies?.jwt) return res.status(404).json({message: 'refresh token non trovato'})
+
     try{
         //rimuoviamo il refresh token dal db
         await RefreshToken.deleteOne({token: refreshTokenCookie})

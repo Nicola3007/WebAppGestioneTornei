@@ -4,10 +4,9 @@ import './login.css'
 
 
 
-function Login() {
+function Login({setUser}) {
 
-    const API_URL = import.meta.env.VITE_API_BASE_URL;
-    console.log(API_URL);
+    const API_URL = `${import.meta.env.VITE_API_USER_URL}`
 
     const [formData, setFormData]=useState({
         email: '',
@@ -29,12 +28,13 @@ function Login() {
 
 
         try{
-            console.log(API_URL)
-            const response = await fetch(`${API_URL}/api/user/login`, {
+            console.log(import.meta.env.VITE_API_USER_URL)
+            const response = await fetch(`${API_URL}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify({email: formData.email, password: formData.password})
             })
 
@@ -48,16 +48,22 @@ function Login() {
             }else{
                 setFormData({...formData, loading:false, error:'none'})
                 localStorage.setItem('accessToken', data.accessToken)
+                localStorage.setItem('user', JSON.stringify(data.data.user))
+                console.log(data.data.user)
+                setUser(data.data.user)
+
 
             }
 
         }catch(err){
             setFormData({...formData, loading:false, error: 'errore nel server o nel login'})
+            console.log(err)
         }
 
     }
 
     return (
+
         <div className="login">
             <h1>Login</h1>
             <form onSubmit={handleSubmit}>
