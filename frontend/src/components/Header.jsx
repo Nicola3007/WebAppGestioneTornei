@@ -12,12 +12,13 @@ function Header({onLogout}) {
         await navigate('/login')
     }
     return(
-        <nav>
+        <div className="app-header">
+            <div className='header-right'>
             <span className='username'> {username? `Ciao ${username} !` : 'Effettua il login!'}</span>
         <button type='submit' onClick={handleClick} >Logout</button>
+            </div>
 
-
-        </nav>
+        </div>
     )
 }
 

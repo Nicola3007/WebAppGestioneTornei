@@ -55,6 +55,7 @@ function App() {
 
     return (
         <BrowserRouter>
+
             <Routes>
                 <Route path='/login' element={<Login setUser={setCurrentUser}/>}></Route>
                 <Route  path='/register' element={<Register/>}></Route>
