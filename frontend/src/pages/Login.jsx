@@ -1,6 +1,6 @@
 import {useState} from "react";
 import {Navigate, Link} from 'react-router-dom';
-import './login.css'
+import '../styles/login.css'
 
 
 

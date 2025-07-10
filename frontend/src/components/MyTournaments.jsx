@@ -1,6 +1,10 @@
-function MyTournaments(){
+import MyTournamentsPanel from "./MyTournamentsPanel.jsx";
+
+
+function MyTournaments() {
     return (
         <>
+            <MyTournamentsPanel />
         </>
     )
 }

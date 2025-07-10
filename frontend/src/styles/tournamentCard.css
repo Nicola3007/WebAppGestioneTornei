@@ -6,6 +6,8 @@
     margin-bottom: 1.5rem;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     transition: transform 0.2s ease;
+    flex: 0 0 calc(33.33% - 1rem);
+    box-sizing: border-box;
 }
 
 .tournament-card:hover {
@@ -87,4 +89,11 @@
 .details-button {
     background-color: #f0f0f0;
     color: #333;
+}
+
+.griglia-tornei {
+    display: flex;
+    flex-wrap: wrap; /* Va a capo se mancano spazio */
+    gap: 1rem;        /* Spazio tra le card */
+    justify-content: flex-start; /* o center / space-between, se preferisci */
 }

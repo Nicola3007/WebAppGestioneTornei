@@ -20,6 +20,7 @@ function MyTournament() {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
                     },
+                    body: {}
                 });
 
                 const data = await response.json();

@@ -128,8 +128,14 @@ exports.updateTournament = async (req,res) => {
 //CERCA TORNEI x nome,data,luogo, tipo, privato, gratis/pagamento, numero squadre-->funziona, da testare comunque col frontend
 exports.searchTournament = async (req, res) => {
 try {
-    const { name, location, date, type, isPrivate, quotaIscrizione, maxTeams } = req.query;
+    const { id, name, location, date, isPrivate, quotaIscrizione, maxTeams } = req.query;
     const query = {};
+
+    //cerca per id
+
+    if(id){
+        query._id = id;
+    }
 
     // Cerca x nome
     if (name) {
@@ -150,11 +156,6 @@ try {
         const nextDay = new Date(parsedDate);
         nextDay.setDate(parsedDate.getDate() + 1);
         query.startDate = { $gte: parsedDate, $lt: nextDay };
-    }
-
-    // cerca x tipo
-    if (type) {
-        query.type = { $regex: type, $options: "i" };
     }
 
     // Cerca per privato/pubblico
@@ -191,7 +192,7 @@ try {
     const tournaments = await Tournament.find(query);
 
     if (tournaments.length === 0) {
-        return res.status(404).json({ message: "Nessun torneo trovato con i seguenti filtri" });
+        return res.status(404).json({ message: "Nessun torneo trovato" });
     }
 
     res.status(200).json(tournaments);
@@ -270,3 +271,5 @@ exports.joinTournament = async (req, res) => {
         res.status(500).json({ message: "Errore del server" });
     }
 };
+
+

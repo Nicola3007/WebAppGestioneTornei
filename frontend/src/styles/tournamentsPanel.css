@@ -1,0 +1,12 @@
+.griglia-tornei{
+    display: grid;
+    grid-template-columns:1fr 1fr 1fr;
+    padding: 5%;
+    box-sizing: border-box;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 7%;
+    box-sizing: border-box;
+}

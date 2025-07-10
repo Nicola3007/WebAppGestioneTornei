@@ -1,4 +1,4 @@
-import './header.css'
+import '../styles/header.css'
 import {Navigate, useNavigate} from 'react-router-dom'
 
 function Header({onLogout}) {
