@@ -271,19 +271,4 @@ exports.joinTournament = async (req, res) => {
     }
 };
 
-exports.getTournament = async (req, res) => {
-    try {
-        const {tournamentId} = req.params;
-
-        const tournament = await Tournament.findById(tournamentId);
-
-        if (!tournament) {
-            return res.status(404).json({ message: "Torneo non trovato" });
-        }
-        res.json(tournament);
-    } catch (error) {
-        console.error("Errore durante la ricerca del torneo:", error);
-        res.status(500).json({ message: "Errore del server" });
-    }
-};
 
