@@ -12,7 +12,7 @@ function TournamentCard({
       endDate,
       status,
       onSubscribe,
-      onViewDetails,
+      onUpdate,
 }) {
     const isOpen = status === "In attesa";
     const formattedStartDate = new Date(startDate).toLocaleDateString("it-IT");
@@ -43,6 +43,8 @@ function TournamentCard({
                 <span className={`privacy ${isPrivate ? "privato" : "pubblico"}`}>
                     {isPrivate ? "Privato" : "Pubblico"}
                 </span>
+                <button onClick={onUpdate} className="update-button">
+                </button>
                 <button
                     onClick={onSubscribe}
                     className="subscribe-button"

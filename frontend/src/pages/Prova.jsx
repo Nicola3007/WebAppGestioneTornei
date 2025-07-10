@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import TournamentCard from "../components/TournamentCard.jsx";
+import { useNavigate } from "react-router-dom";
 
 function Prova() {
     const [tournaments, setTournaments] = useState([]);
@@ -7,6 +8,7 @@ function Prova() {
     const [error, setError] = useState(null);
 
     const API_URL = import.meta.env.VITE_API_BASE_URL;
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchTournaments = async () => {
@@ -42,6 +44,7 @@ function Prova() {
     return (
         <div className="pagina-tornei">
             <h1>Tornei disponibili</h1>
+            <button onClick={() => navigate("/crea-torneo")}>Crea un nuovo torneo</button>
             <div className="griglia-tornei">
                 {tournaments.map((t) => (
                     <TournamentCard
