@@ -1,9 +1,12 @@
 import {useEffect, useState,} from 'react'
 import {BrowserRouter, Routes, Route, useNavigate, Navigate} from 'react-router-dom'
-import './App.css'
+//import './App.css'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import Dashboard from './pages/Dashboard.jsx'
+import Home from "./components/Home.jsx";
+import MyTournaments from "./components/MyTournaments.jsx";
+import SearchTournaments from "./components/SearchTournament.jsx";
 
 
 
@@ -54,15 +57,21 @@ function App() {
     }
 
     return (
+        <div id='root'>
         <BrowserRouter>
 
             <Routes>
                 <Route path='/login' element={<Login setUser={setCurrentUser}/>}></Route>
                 <Route  path='/register' element={<Register/>}></Route>
-                <Route path='/' element={<Dashboard onLogout={handleLogout}/>}> </Route>
+                <Route path='/' element={<Dashboard onLogout={handleLogout}/>}>
+                    <Route index element={<Home/>}></Route>
+                    <Route path="home" element={<Home />} />
+                    <Route path="my-tournaments" element={<MyTournaments />} />
+                    <Route path="search-tournaments" element={<SearchTournaments />} />
+                </Route>
             </Routes>
         </BrowserRouter>
-
+        </div>
     )
 }
 
