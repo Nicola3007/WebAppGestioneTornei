@@ -15,7 +15,7 @@ const tournamentSchema = new mongoose.Schema({
     type: {
         type: String,
         required: true,
-        enum : ["Girone all'italiana" , "Gironi + Fase ad eliminazione diretta", 'Eliminazione diretta'],
+        enum : ["Eliminazione diretta"],
         default: 'Eliminazione diretta',
     },
     startDate : {
@@ -27,6 +27,11 @@ const tournamentSchema = new mongoose.Schema({
             },
             message: 'La data di inizio deve essere futura'
         }
+    },
+    status: {
+        type: String,
+        enum: ["In attesa", "In corso", "Completato"],
+        default: "In attesa"
     },
     endDate : {
         type: Date,
@@ -77,11 +82,6 @@ const tournamentSchema = new mongoose.Schema({
         type: Number,
         required: true,
         enum: [4, 8, 16, 32],
-    },
-    status: {
-        type: String,
-        default: 'In attesa',
-        enum : ['In attesa', 'Iscrizioni chiuse', 'In corso', 'Completato'],
     },
     createdAt: {
         type: Date,

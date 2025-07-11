@@ -8,15 +8,19 @@ function TournamentCard({
       maxTeams,
       prize,
       quotaIscrizione,
+      deadline,
       startDate,
       endDate,
       status,
       onSubscribe,
+      showButtonSubscribe,
       onUpdate,
+      showButtonUpdate,
 }) {
     const isOpen = status === "In attesa";
     const formattedStartDate = new Date(startDate).toLocaleDateString("it-IT");
     const formattedEndDate = new Date(endDate).toLocaleDateString("it-IT");
+    const formattedDeadline = new Date(deadline).toLocaleDateString("it-IT");
     const navigate = useNavigate();
 
     return(
@@ -32,10 +36,14 @@ function TournamentCard({
             <div className="details">
                 <p>{maxTeams} squadre</p>
             </div>
-            <p className="date">{formattedStartDate} - {formattedEndDate}</p>
+            <div className="deadline">
+            <p className="deadline"> Scadenza iscrizioni: {formattedDeadline}</p>
+            </div>
+            <p className="date"> Data inzio: {formattedStartDate} - Data fine: {formattedEndDate}</p>
+
 
             <div className="prize">
-                <p>€{prize}</p>
+                <p>PREMI: {prize}</p>
                 <p>Quota: €{quotaIscrizione}</p>
             </div>
 
@@ -43,15 +51,17 @@ function TournamentCard({
                 <span className={`privacy ${isPrivate ? "privato" : "pubblico"}`}>
                     {isPrivate ? "Privato" : "Pubblico"}
                 </span>
-                <button onClick={onUpdate} className="update-button">
-                </button>
+                {showButtonUpdate &&
+                <button onClick={onUpdate} className="update-button">Modifica
+                </button>}
+                {showButtonSubscribe &&
                 <button
                     onClick={onSubscribe}
                     className="subscribe-button"
                     disabled={!isOpen}
                 >
                     {isOpen ? "Iscriviti" : "Completo"}
-                </button>
+                </button>}
             </div>
         </div>
     );
