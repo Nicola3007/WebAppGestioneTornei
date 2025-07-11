@@ -1,38 +1,43 @@
-.app-header {
+.header {
     display: flex;
     justify-content: flex-end;
-    align-items: center;
-    border-bottom: 1px solid #f2f2f2;
-    padding: 12px 32px;
-    background: white;
-    width: 100vw;
-    position: fixed;
-    top: 0;
-    left: 0;
+    width: 100%;
+    background: #fff;
+    padding:20px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 1.2rem;
+    min-height: 64px;
     box-sizing: border-box;
 }
-.header-right {
+
+
+/*.header-left {
+    font-weight: bold;
+    font-size: 1.5rem;
     display: flex;
     align-items: center;
+    gap: 12px;
+}*/
+.header-right {
+    display: flex;
+    align-items: flex-end;
     gap: 22px;
 }
-.username {
+.header-right .username {
     color: #64748b;
     font-size: 1rem;
 }
-button[type='submit'] {
-    background: white;
-    color: black;
+.header-right button {
+    background: #fff;
+    color: #111928;
     border: 1px solid #e5e7eb;
     border-radius: 9px;
     padding: 8px 20px;
     font-weight: bold;
     font-size: 1rem;
     cursor: pointer;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     transition: background 0.13s;
 }
-button[type='submit']:hover {
-    background: white;
+.header-right button:hover {
+    background: #f3f4f6;
 }
-

@@ -54,8 +54,7 @@ function CreateTournament() {
                     isPrivate: formData.isPrivate === true || formData.isPrivate === "true",
                     quotaIscrizione: Number(formData.quotaIscrizione),
                     maxTeams: Number(formData.maxTeams),
-                   // prize: formData.prize.trim(), // se è stringa va bene, altrimenti Number()
-                }),
+                    }),
             })
 
             if (!response.ok) {
