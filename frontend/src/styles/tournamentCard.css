@@ -34,6 +34,14 @@
     font-weight: bold;
     color: white;
 }
+.deadline {
+    color: #d90429; /* rosso acceso */
+    font-weight: bold;
+    font-size: 1.05rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
 
 .badge-open {
     background-color: #28a745;
@@ -65,7 +73,7 @@
 }
 
 .subscribe-button,
-.details-button {
+.update-button {
     padding: 0.5rem 1rem;
     border: none;
     border-radius: 6px;
@@ -86,7 +94,12 @@
     cursor: not-allowed;
 }
 
-.details-button {
+.update-button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+.update-button {
     background-color: #f0f0f0;
     color: #333;
 }

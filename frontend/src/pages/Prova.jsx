@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import TournamentCard from "../components/TournamentCard.jsx";
 import { useNavigate } from "react-router-dom";
+import CreateTournament from "../pages/CreateTournament.jsx";
+import TournamentUpdate from "../pages/TournamentUpdate.jsx";
 
 function Prova() {
     const [tournaments, setTournaments] = useState([]);
@@ -50,10 +52,18 @@ function Prova() {
                     <TournamentCard
                         key={t._id}
                         {...t}
-                        onSubscribe={() => {}}
-                        onViewDetails={() => {}}
+                        showButtonSubscribe={false}
+                        showButtonUpdate={true}
+                        onUpdate={() => navigate("/modifica-torneo", {
+                        state: {
+                            params: {
+                                tournament: t
+                        }
+                        }})}
+
                     />
-                ))}
+
+                    ))}
             </div>
         </div>
     );

@@ -107,7 +107,7 @@ exports.updateTournament = async (req,res) => {
             return res.status(400).json({message: "Non puoi modificare un torneo in corso"});
         }
 
-        const modifiche = [ "location", "startDate", "endDate", "deadline", "description", "prize", "quotaIscrizione", "maxTeams" ];
+        const modifiche = ["name", "isPrivate", "location", "startDate", "endDate", "deadline", "description", "prize", "quotaIscrizione", "maxTeams" ];
         modifiche.forEach( field => {
             if (updates[field] !== undefined){
                 tournament[field] = updates[field];
@@ -121,7 +121,7 @@ exports.updateTournament = async (req,res) => {
 
     }catch(error){
         console.error("Errore aggiornamento torneo:", error);
-        res.status(500).json({message: "Errore del server"});
+        res.status(500).json({message: "Errore del server durante al modifica"});
     }}
 
 
