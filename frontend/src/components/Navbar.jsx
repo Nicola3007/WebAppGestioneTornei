@@ -4,10 +4,10 @@ import './navbar.css'
 function Navbar() {
 
     return (
-        <div className="navbar-container">
+        <div className="navbar">
             <Link to='/home' className='home'>Home</Link>
-            <Link to='/myTournaments' className='my-tournaments'>I miei tornei</Link>
-            <Link to='/searchTournament' className='search-tournament'>Cerca torneo</Link>
+            <Link to='/my-tournaments' className='my-tournaments'>I miei tornei</Link>
+            <Link to='/search-tournaments' className='search-tournament'>Cerca torneo</Link>
         </div>
     )
 }
