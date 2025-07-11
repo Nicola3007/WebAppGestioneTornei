@@ -8,21 +8,26 @@ function TournamentCard({
       maxTeams,
       prize,
       quotaIscrizione,
+      deadline,
       startDate,
       endDate,
       status,
+      description,
+      showButtonSubscribe,
+      showButtonUpdate,
       onSubscribe,
-      showButton
+      onUpdate,
+
 }) {
     const isOpen = status === "In attesa";
     const formattedStartDate = new Date(startDate).toLocaleDateString("it-IT");
     const formattedEndDate = new Date(endDate).toLocaleDateString("it-IT");
-
+    const formattedDeadline = new Date(deadline).toLocaleDateString("it-IT");
     return(
         <div className="tournament-card">
             <div className="tournament-header">
                 <h2>{name}</h2>
-                <span className={`badge ${isOpen ? "badge-open" : "badge-closed"}`}>
+                <span className={`${isOpen ? "badge-open" : "badge-closed"}`}>
                     {isOpen ? "Aperto" : "Completo"}
                 </span>
             </div>
@@ -31,25 +36,39 @@ function TournamentCard({
             <div className="details">
                 <p>{maxTeams} squadre</p>
             </div>
-            <p className="date">{formattedStartDate} - {formattedEndDate}</p>
+            <div className="deadline">
+                <p className="deadline"> Scadenza iscrizioni: {formattedDeadline}</p>
+            </div>
+            <p className="date"> Data inzio: {formattedStartDate} - Data fine: {formattedEndDate}</p>
+
 
             <div className="prize">
-                <p>€{prize}</p>
+                <p>PREMI: {prize}</p>
                 <p>Quota: €{quotaIscrizione}</p>
+                <p>Descrizione : {description}</p>
             </div>
 
             <div className="footer">
                 <span className={`privacy ${isPrivate ? "privato" : "pubblico"}`}>
                     {isPrivate ? "Privato" : "Pubblico"}
                 </span>
-                {showButton &&
-                <button
-                    onClick={onSubscribe}
-                    className="subscribe-button"
-                    disabled={!isOpen}
-                >
-                    {isOpen ? "Iscriviti" : "Completo"}
-                </button> }
+                {showButtonSubscribe &&
+                    <button
+                        onClick={onSubscribe}
+                        className="subscribe-button"
+                        disabled={!isOpen}
+                    >
+                        {isOpen ? "Iscriviti" : "Completo"}
+                    </button> }
+                { showButtonUpdate &&
+                    <button
+                        onClick={onUpdate}
+                        className="subscribe-button"
+                    >
+                        Modifica
+                    </button>
+
+                }
             </div>
         </div>
     );

@@ -1,0 +1,26 @@
+.form-content {
+    background: white;
+    padding: 32px 24px;
+    border-radius: 14px;
+    min-width: 320px;
+    position: relative;
+}
+
+.create-button {
+    display: block;
+    margin: 10% auto;
+    background: #0f172a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 15px 28px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.16s;
+
+}
+
+.create-button:hover {
+    background: #1e293b;
+}

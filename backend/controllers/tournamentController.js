@@ -58,6 +58,10 @@ exports.createTournament = async (req, res) => {
             const messages = Object.values(error.errors).map(err => err.message);
             return res.status(400).json({ message: messages.join('. ') });
         }
+        if(error.code===11000){
+            console.log('nome già esistente');
+            return res.status(500).json({message: 'nome del torneo già in uso'})
+        }
         res.status(500).json({ message: "Errore del server durante la creazione del torneo." });
     }
 }
@@ -107,7 +111,7 @@ exports.updateTournament = async (req,res) => {
             return res.status(400).json({message: "Non puoi modificare un torneo in corso"});
         }
 
-        const modifiche = [ "location", "startDate", "endDate", "deadline", "description", "prize", "quotaIscrizione", "maxTeams" ];
+        const modifiche = [ "name", "location", "startDate", "endDate", "deadline", "description", "prize", "quotaIscrizione", "maxTeams" ];
         modifiche.forEach( field => {
             if (updates[field] !== undefined){
                 tournament[field] = updates[field];
@@ -120,6 +124,9 @@ exports.updateTournament = async (req,res) => {
         res.json({ message: "Torneo aggiornato con successo!", tournament: populatedTournament });
 
     }catch(error){
+        if (error.code===11000){
+            return res.status(400).json({message: "nome già usato, inserirne un altro"});
+        }
         console.error("Errore aggiornamento torneo:", error);
         res.status(500).json({message: "Errore del server"});
     }}
@@ -128,7 +135,7 @@ exports.updateTournament = async (req,res) => {
 //CERCA TORNEI x nome,data,luogo, tipo, privato, gratis/pagamento, numero squadre-->funziona, da testare comunque col frontend
 exports.searchTournament = async (req, res) => {
 try {
-    const { id, name, location, date, isPrivate, quotaIscrizione, maxTeams } = req.query;
+    const { id, name, location, date, isPrivate, quotaIscrizione, maxTeams, createdBy } = req.query;
     const query = {};
 
     //cerca per id
@@ -187,6 +194,10 @@ try {
             return res.status(400).json({ message: "Numero squadre non trovato" });
         }
         query.maxTeams = { $gte: max };
+    }
+
+    if(createdBy){
+        query.createdBy = createdBy;
     }
 
     const tournaments = await Tournament.find(query);
@@ -272,4 +283,24 @@ exports.joinTournament = async (req, res) => {
     }
 };
 
+//MOSTRA TORNEI A CUI SONO ISCRITTO
+
+exports.getMySignedUpTournaments = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        const tournaments = await Tournament.find({ "teams.captain": userId })
+            .populate("teams.captain", "username");
+
+        if (!tournaments || tournaments.length === 0) {
+            return res.status(404).json({ message: "Non sei iscritto a nessun torneo" });
+        }
+
+        return res.status(200).json(tournaments);
+
+    } catch (error) {
+        console.error("Errore nel recupero dei tornei iscritti", error);
+        return res.status(500).json({ message: "Errore del server" });
+    }
+};
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import {useNavigate} from "react-router-dom";
 import TournamentCard from "./TournamentCard.jsx";
 import '../styles/tournamentsPanel.css'
 
@@ -9,6 +10,8 @@ function MyTournamentsPanel() {
 
     const API_URL = import.meta.env.VITE_API_TOURNAMENTS_URL;
 
+    const navigate = useNavigate();
+
     useEffect(() => {
 
         const fetchTournaments = async () => {
@@ -16,8 +19,9 @@ function MyTournamentsPanel() {
                 const user = JSON.parse(localStorage.getItem("user"));
                 if (!user || !user._id) {
                 }
-
-                const response = await fetch(`${API_URL}/search?createdBy=${user._id}`, {
+                console.log(user._id);
+                console.log(`${API_URL}/search?createdBy=${user._id.toString()}`);
+                const response = await fetch(`${API_URL}/search?createdBy=${user._id.toString()}`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -49,7 +53,17 @@ function MyTournamentsPanel() {
                         key={t._id}
                         {...t}
                         onViewDetails={() => {}}
-                        showButton={false}
+                        showButtonSubscribe={false}
+                        showButtonUpdate={true}
+                        onUpdate={()=>navigate('/update-tournaments',
+                            {
+                                state: {
+                                    params: {
+                                        tournament: t
+                                    }
+                                }
+                            }
+                        )}
                     />
                 ))}
             </div>

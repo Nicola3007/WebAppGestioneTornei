@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard.jsx'
 import Home from "./components/Home.jsx";
 import MyTournaments from "./components/MyTournaments.jsx";
 import SearchTournaments from "./components/SearchTournament.jsx";
+import TournamentUpdate from "./components/TournamentUpdate.jsx";
 
 
 
@@ -68,6 +69,7 @@ function App() {
                     <Route path="home" element={<Home />} />
                     <Route path="my-tournaments" element={<MyTournaments />} />
                     <Route path="search-tournaments" element={<SearchTournaments />} />
+                    <Route path="update-tournaments" element={<TournamentUpdate/>}></Route>
                 </Route>
             </Routes>
         </BrowserRouter>
