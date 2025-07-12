@@ -39,10 +39,17 @@ function MyTournamentsPanel() {
         };
 
          fetchTournaments();
+
     }, []);
+
+    useEffect(() => {
+        console.log(tournaments);
+    }, [loading]);
+
 
     if (loading) return <p>Caricamento tornei</p>;
     if (error) return <p>Errore: {error}</p>;
+
 
     return (
         <div className="pagina-tornei">
@@ -52,7 +59,6 @@ function MyTournamentsPanel() {
                     <TournamentCard
                         key={t._id}
                         {...t}
-                        onViewDetails={() => {}}
                         showButtonSubscribe={false}
                         showButtonUpdate={true}
                         onUpdate={()=>navigate('/update-tournaments',

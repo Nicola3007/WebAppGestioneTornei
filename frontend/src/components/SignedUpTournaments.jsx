@@ -48,7 +48,7 @@ function SignedUpTournaments() {
                 <p>Non sei iscritto a nessun torneo.</p>
             ) : (
                 <div className="griglia-tornei">
-                    <h1>Tornei a cui sei iscritto:</h1>
+                    <h1 className='subscribe-title'>Tornei a cui sei iscritto:</h1>
                     {tournaments.map((t) => (
                         <TournamentCard
                             key={t._id}

@@ -8,7 +8,6 @@ function CreateTournament({handleBackClick}) {
        const [ formData, setFormData ] = useState({
         name: "",
         type: "",
-        isPrivate: false,
         startDate: "",
         endDate: "",
         location: "",
@@ -52,7 +51,6 @@ function CreateTournament({handleBackClick}) {
                 },
                 body: JSON.stringify({
                     ...formData,
-                    isPrivate: formData.isPrivate === true || formData.isPrivate === "true",
                     quotaIscrizione: Number(formData.quotaIscrizione),
                     maxTeams: Number(formData.maxTeams),
                     }),
@@ -73,7 +71,6 @@ function CreateTournament({handleBackClick}) {
             setFormData({
                 name: "",
                 type: "",
-                isPrivate: false,
                 startDate: "",
                 endDate: "",
                 location: "",
@@ -94,7 +91,7 @@ function CreateTournament({handleBackClick}) {
     return (
         <div className="create-tournament">
             <h1>Crea nuovo torneo</h1>
-            <button type="button" className="back-button" onClick={()=>handleBackClick}>Torna indietro</button>
+            <button className="back-button" onClick={handleBackClick}>Torna indietro</button>
             <form onSubmit={handleSubmit}>
                 <label>Nome torneo</label>
                 <input
@@ -114,21 +111,7 @@ function CreateTournament({handleBackClick}) {
                     <option value="">Seleziona tipo torneo...</option>
                     <option value="Eliminazione diretta">Eliminazione diretta</option>
                     <option value="Girone all'italiana">Girone all'italiana</option>
-                </select>
-
-                <label>Privato:</label>
-                <select
-                    name="isPrivate"
-                    value={formData.isPrivate ? "true" : "false"}
-                    onChange={(e) =>
-                        setFormData((prev) => ({
-                            ...prev,
-                            isPrivate: e.target.value === "true",
-                        }))
-                    }
-                >
-                    <option value="true">Sì</option>
-                    <option value="false">No</option>
+                    <option value="Altro">Altro</option>
                 </select>
                 <label>Data inizio</label>
                 <input

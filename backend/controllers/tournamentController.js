@@ -1,13 +1,21 @@
 const Tournament = require('../models/tournamentModel');
-const Match = require('../models/matchModel');
 const User = require('../models/userModel');
+
+//funzione helper per settare un attributo status a ogni funzione che sarà aggiunto a ogni chiamata
+function getStatus(tournament) {
+    const now = new Date();
+    if (now < tournament.deadline) return "In attesa";
+    if (now >= tournament.deadline && now <= tournament.endDate) return "In corso";
+    if (now > tournament.endDate) return "Completato";
+    return "In attesa"; // fallback
+}
 
 
 //CREARE UN TORNEO--> funziona, solo da capire la festione dei tabelloni che non andrebbe fatta qua
 exports.createTournament = async (req, res) => {
     try {
         const {
-            name, isPrivate, startDate, endDate,type, location, deadline, description, prize, quotaIscrizione, maxTeams
+            name, startDate, endDate,type, location, deadline, description, prize, quotaIscrizione, maxTeams
         } = req.body;
         const userId = req.userId;
 
@@ -17,7 +25,6 @@ exports.createTournament = async (req, res) => {
 
         const newTournament = new Tournament({
             name,
-            isPrivate,
             startDate,
             endDate,
             type,
@@ -32,19 +39,6 @@ exports.createTournament = async (req, res) => {
         });
 
         await newTournament.save();
-
-        //Genera tabbellone vuoti
-        /*switch (newTournament.type) {
-            case 'Eliminazione diretta':
-                await generateTabellone(newTournament);
-                break;
-            case "Girone all'italiana":
-                await generateGironi(newTournament);
-                break;
-            case 'Gironi + Fase ad eliminazione diretta':
-                await generateChampions(newTournament);
-                break;
-        }   è commentato perchè probabilmente questa aprte non va qua, comunque è da fare in un secondo momento*/
 
         const populatedTournament = await Tournament.findById(newTournament._id).populate('createdBy', 'name');
 
@@ -135,7 +129,7 @@ exports.updateTournament = async (req,res) => {
 //CERCA TORNEI x nome,data,luogo, tipo, privato, gratis/pagamento, numero squadre-->funziona, da testare comunque col frontend
 exports.searchTournament = async (req, res) => {
 try {
-    const { id, name, location, date, isPrivate, quotaIscrizione, maxTeams, createdBy } = req.query;
+    const { id, name, location, date, quotaIscrizione, maxTeams, type, createdBy } = req.query;
     const query = {};
 
     //cerca per id
@@ -165,17 +159,6 @@ try {
         query.startDate = { $gte: parsedDate, $lt: nextDay };
     }
 
-    // Cerca per privato/pubblico
-    if (isPrivate !== undefined) {
-        if (isPrivate === "true") {
-            query.isPrivate = true; //privato
-        } else if (isPrivate === "false") {
-            query.isPrivate = false; //pubblico
-        } else {
-            return res.status(400).json({ message: "Tipo torneo non trovato" });
-        }
-    }
-
     // Cerca per gratis o pagamento
     if (quotaIscrizione !== undefined) {
         if (quotaIscrizione === "true") {
@@ -193,11 +176,15 @@ try {
         if (isNaN(max)) {
             return res.status(400).json({ message: "Numero squadre non trovato" });
         }
-        query.maxTeams = { $gte: max };
+        query.maxTeams = maxTeams;
     }
 
     if(createdBy){
         query.createdBy = createdBy;
+    }
+
+    if(type){
+        query.type = type;
     }
 
     const tournaments = await Tournament.find(query);
@@ -206,7 +193,12 @@ try {
         return res.status(404).json({ message: "Nessun torneo trovato" });
     }
 
-    res.status(200).json(tournaments);
+    const tournamentsWithStatus = tournaments.map(t => ({
+        ...t.toObject(),
+        status: getStatus(t),
+    }));
+
+    res.status(200).json(tournamentsWithStatus);
 
 } catch (error) {
     console.error("Errore durante la ricerca del torneo:", error);
@@ -222,19 +214,17 @@ exports.joinTournament = async (req, res) => {
         const {teamName} = req.body;
 
         const tournament = await Tournament.findById(tournamentId);
+
+
         if (!tournament) {
             return res.status(404).json({message: "Torneo non trovato"});
         }
-        if (tournament.status !== 'In attesa') {
+        if (getStatus(tournament) !== 'In attesa') {
             return res.status(400).json({ message: "Iscrizioni chiuse per questo torneo" });
         }
 
         if(new Date(tournament.deadline) < new Date() ) {
             return res.status(400).json({message: "Termine per le iscrizioni scaduto"});
-        }
-
-        if(tournament.isPrivate){
-            return res.status(403).json({message: "Torneo privato: iscrizione su invito"});
         }
 
         if(tournament.teams.length >= tournament.maxTeams){
@@ -247,19 +237,14 @@ exports.joinTournament = async (req, res) => {
         }
 
         const alreadyRegistered = tournament.teams.some(team => team.captain === userId);
-        if (alreadyRegistered) {
-            return res.status(403).json({message: "Hai già iscritto una squadra"});
-        }
 
-        if(alreadyRegistered){
-            return res.status(403).json({message: "Hai già iscritto una squadra"});
+        if (alreadyRegistered) {
+            return res.status(403).json({message: "Hai già iscritto una squadra a questo torneo"});
         }
 
            const  newTeam = {
                 name: teamName.toLowerCase(),
                 captain: userId,
-                paymentStatus: tournament.quotaIscrizione ? "In attesa" : "Pagato",
-                createdAt : new Date(),
             };
 
             tournament.teams.push(newTeam); //inserisco il nuovo team
@@ -296,7 +281,12 @@ exports.getMySignedUpTournaments = async (req, res) => {
             return res.status(404).json({ message: "Non sei iscritto a nessun torneo" });
         }
 
-        return res.status(200).json(tournaments);
+        const tournamentsWithStatus = tournaments.map(t => ({
+            ...t.toObject(),
+            status: getStatus(t),
+        }));
+
+        return res.status(200).json(tournamentsWithStatus);
 
     } catch (error) {
         console.error("Errore nel recupero dei tornei iscritti", error);

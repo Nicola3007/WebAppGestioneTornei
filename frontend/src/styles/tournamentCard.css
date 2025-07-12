@@ -55,7 +55,8 @@
 .location,
 .date,
 .details,
-.prize {
+.prize,
+.label-name{
     margin: 0.3rem 0;
     font-size: 0.95rem;
     color: #555;
@@ -68,7 +69,7 @@
 
 .footer {
     margin-top: 1rem;
-    display: flex;
+    display: block;
     justify-content: space-between;
     align-items: center;
 }
@@ -85,9 +86,11 @@
 }
 
 .subscribe-button {
+    display: inline-block;
     background-color: #007bff;
     color: white;
-    margin-right: 0.5rem;
+    float: right;
+    margin-top: 10px;
 }
 
 .subscribe-button:disabled {
@@ -110,4 +113,36 @@
     flex-wrap: wrap; /* Va a capo se mancano spazio */
     gap: 1rem;        /* Spazio tra le card */
     justify-content: flex-start; /* o center / space-between, se preferisci */
+}
+
+.name-team-input{
+    width: 80%;
+    padding: 10px 12px;
+    margin: 6px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.subscribe-form{
+    display: flex;
+    flex-direction: column;
+    padding: 5%;
+    width: 100%;
+    align-items: center;
+    margin:auto;
+}
+
+#back{
+    background-color: red;
+    margin-right: 15px;
+}
+
+.subscribe-form {
+    padding: 5%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }

@@ -8,40 +8,19 @@ const tournamentSchema = new mongoose.Schema({
         trim: true,
         lowercase: true,
     },
-    isPrivate :{
-        type: Boolean,
-        default: false,
-    },
     type: {
         type: String,
         required: true,
-        enum : ["Eliminazione diretta"],
+        enum : ["Eliminazione diretta", "Girone all'italiana", "Altro"],
         default: 'Eliminazione diretta',
     },
     startDate : {
         type: Date,
-        required: true,
-        validate: {
-            validator: function(date) {
-                return date > new Date();
-            },
-            message: 'La data di inizio deve essere futura'
-        }
-    },
-    status: {
-        type: String,
-        enum: ["In attesa", "In corso", "Completato"],
-        default: "In attesa"
-    },
+        required: true
+        },
     endDate : {
         type: Date,
         required: true,
-        validate: {
-            validator: function(date) {
-                return date > this.startDate;
-            },
-            message: 'La data di fine deve essere successiva alla data di inizio'
-        }
     },
     location: {
         type: String,
@@ -51,14 +30,6 @@ const tournamentSchema = new mongoose.Schema({
     deadline : {
         type: Date,
         required: true,
-        validate: {
-            validator: function(date) {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                return date > today && date < this.startDate;
-            },
-            message: 'La scadenza iscrizioni deve essere compresa tra oggi e la data di inizio'
-        }
     },
     description : {
         type: String,
@@ -98,17 +69,8 @@ const tournamentSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true
-        },
-        paymentStatus: {
-            type: String,
-            enum: ['Pagato', 'In attesa', 'Rifiutato'],
-            default: 'In attesa'
         }
-        }],
-    matches: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Match'
-    }],
+        }]
 })
 
 tournamentSchema.pre('validate', async function (next) {    try {

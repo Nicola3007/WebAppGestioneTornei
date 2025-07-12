@@ -1,5 +1,6 @@
 import '../styles/header.css'
 import {Navigate, useNavigate} from 'react-router-dom'
+import logo from '../assets/logo.png'
 
 function Header({onLogout}) {
 
@@ -13,6 +14,9 @@ function Header({onLogout}) {
     }
     return(
         <div className="header">
+            <div className='header-left'>
+                <img src={logo} alt='logo' />
+            </div>
             <div className='header-right'>
             <span className='username'> {username? `Ciao ${username} !` : 'Effettua il login!'}</span>
         <button type='submit' onClick={handleClick} >Logout</button>

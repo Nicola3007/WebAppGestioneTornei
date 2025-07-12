@@ -9,8 +9,8 @@ function SearchTournamentForm({onSubmit}) {
         name:'',
         location:'',
         date: null,
-        isPrivate: '',
         quotaIscrizione: '',
+        type:'',
         maxTeams: null
     })
 
@@ -101,16 +101,8 @@ function SearchTournamentForm({onSubmit}) {
                         onChange={handleChange}
                     />
                 </div>
-
-                <select className='form-select'
-                    name="isPrivate"
-                    value={searchForm.isPrivate}
-                        onChange={handleChange}
-                >
-                    <option value=''>Entrambi</option>
-                    <option value='true'>Privato</option>
-                    <option value='false'>Pubblico</option>
-                </select>
+                <div className='form-group'>
+                    <label className='form-label'>Quota iscrizione</label>
                 <select className='form-select'
                     name="quotaIscrizione"
                     value={searchForm.quotaIscrizione}
@@ -120,13 +112,26 @@ function SearchTournamentForm({onSubmit}) {
                     <option value="true">Gratis</option>
                     <option value="false">A pagamento</option>
                 </select>
-                <select className='form-select' value={searchForm.maxTeams} onChange={handleChange}>
+                </div>
+                <div className='form-group'>
+                    <label className='form-label'>Numero squadre</label>
+                <select className='form-select' name="maxTeams" value={searchForm.maxTeams} onChange={handleChange}>
                     <option value=''>Tutti</option>
                     <option value={4}>4</option>
                     <option value={8}>8</option>
                     <option value={16}>16</option>
                     <option value={32}>32</option>
                 </select>
+                </div>
+                <div className='form-group'>
+                    <label className='form-label'>Tipo torneo</label>
+                <select className='form-select' name="type" value={searchForm.type} onChange={handleChange}>
+                    <option value=''>Qualsiasi</option>
+                    <option value="Eliminazione diretta">Eliminazione diretta</option>
+                    <option value="Girone all'italiana">Girone all'italiana</option>
+                    <option value="Altro">Altro</option>
+                </select>
+                </div>
                 <div className='form-actions'>
                 <button className='form-button' type="submit">Cerca torneo</button>
                 </div>
