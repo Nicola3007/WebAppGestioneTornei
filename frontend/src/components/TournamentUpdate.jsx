@@ -28,7 +28,9 @@ function TournamentUpdate(){
 
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
-    const [error, setError] = useState("");
+    const [errorUpdate, setErrorUpdate] = useState("");
+    const [errorDelete,setErrorDelete] = useState("");
+    const [confirmDelete, setConfirmDelete] = useState(false);
 
     const handleChange = (e) => {
         const {name, value, checked, type} = e.target;
@@ -38,40 +40,67 @@ function TournamentUpdate(){
         }));
     };
 
+    const handleDelete = async () => {
+        try {
+            const accessToken = localStorage.getItem("accessToken");
+            const response = await fetch(`${API_URL}/deleteTournament/${tournament._id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken}`,
+                },
+            });
+
+            if (!response.ok) {
+                const errorDelete = await response.json();
+                setErrorDelete(errorDelete.message || "Errore eliminazione torneo");
+                return;
+            }
+
+            alert("Torneo eliminato con successo!");
+            navigate("/my-tournaments");
+        } catch (error) {
+            console.error("Errore durante l'eliminazione: ", error);
+            setErrorDelete("Errore durante l'eliminazione");
+        } finally {
+            setConfirmDelete(false);
+        }
+    };
+
     const handleUpdate = async (e) => {
         e.preventDefault();
         const accessToken = localStorage.getItem("accessToken");
         setLoading(true);
-        try{
+
+        try {
             const response = await fetch(`${API_URL}/updateTournament/${tournament._id}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                'Authorization': `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify({
-                ...formData,
-                maxTeams: Number(formData.maxTeams),
-                quotaIscrizione: Number(formData.quotaIscrizione),
-                isPrivate: formData.isPrivate === true || formData.isPrivate === "true",
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify({
+                    ...formData,
+                    maxTeams: Number(formData.maxTeams),
+                    quotaIscrizione: Number(formData.quotaIscrizione),
+                    isPrivate: formData.isPrivate === true || formData.isPrivate === "true",
                 }),
-        });
+            });
 
             if (!response.ok) {
-                const errMsg = await response.json()
-                setError(errMsg.message);
+                const errMsg = await response.json();
+                setErrorUpdate(errMsg.message);
                 setLoading(false);
                 throw new Error(errMsg.toString());
             }
 
-
-
-     const updateTournaments = await response.json();
-     setSuccess(true);
-    }catch(error){
+            const updateTournaments = await response.json();
+            setSuccess(true);
+        } catch (error) {
             console.error("Errore nella fetch: ", error);
         }
-};
+    };
+
 
     return (
         <div className="update-tournament">
@@ -186,11 +215,17 @@ function TournamentUpdate(){
                     {loading ? "Modifiche in corso..." : "Salva modifiche"}
                 </button>
 
-
-
-            </form>
+                </form>
             {success && <Navigate to="/my-tournaments" /> }
-            {error && <div className="error">{error}</div>}
+            {errorUpdate && <div className="error">{errorUpdate}</div>}
+            <button className="delete-button" onClick={()=> setConfirmDelete(true)}>Elimina Torneo</button>
+            {confirmDelete && (
+                <div className="confirm-delete-box">
+                    <p>Sei sicuro di voler eliminare questo torneo?</p>
+                    <button onClick={handleDelete}>Conferma</button>
+                    <button onClick={() => setConfirmDelete(false)}>Annulla</button>
+                </div>
+            )}
         </div>
     )
 
