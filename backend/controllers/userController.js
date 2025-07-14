@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const user = require('../models/userModel.js');
 const jwt = require('jsonwebtoken');
 const RefreshToken = require('../models/refreshTokenModel.js');
-const Team = require('../models/teamModel.js');
 require('dotenv').config();
 
 //funzione helper per la generazione di token --> corretta
@@ -23,10 +22,8 @@ const generateToken = (userId)=>{
 exports.createUser= async (req, res)=>{
     try{
         const {username, email, password} = req.body;
-        let exist = false;
         const existingUser = await user.findOne({email})
         if(existingUser){
-            exist = true;
             return res.status(404).json({message: ' l\' email è già stata utilizzata'})
         }
         const newUser = new user({email, username, password})
@@ -57,14 +54,14 @@ exports.login = async (req, res)=>{
         if(!email || !password){
             return res.status(400).json({message: 'inserire tutti i dati'});
         }
-        console.log(email + password);
+
         const findUser = await user.findOne({email: email}).select('+password')
-        console.log(findUser)
+
         if(!findUser){
             return res.status(400).json({message: 'email errata'})
         }
         const rightPassword = await findUser.comparePassword(password);
-        console.log(rightPassword)
+
         if( !rightPassword){
            return res.status(400).json({message: 'password errata'})
         }
@@ -132,41 +129,3 @@ exports.logout = async (req, res)=>{
         res.status(500).json({message: 'errore nel server'})
     }
 }
-
-// GETME: metodo che serve per l'area personale per fare comparire i propri dati-->corretta ma va ricontrollata quando faccio i tournaments
-exports.getMe = async function(req, res, next){
-    try{
-        const id = req.userId;
-        console.log(id)
-        const me = await user.findById(id).populate('tournamentsOrganized').populate('teams');
-        if(!me){
-            res.status(404).json({message: 'dati non trovati'})
-        }
-        const hasNoTournaments = me.teams.every(team => team.tournaments.length === 0);
-
-        const hasNoTournamentsOrganized = me.tournamentsOrganized.length === 0
-
-        const messageTournaments = hasNoTournaments ? 'Non hai ancora partecipato a nessun torneo' : me.teams
-
-        const messageOrganizer = hasNoTournamentsOrganized ? 'Non hai ancora organizzato nessun torneo!' : me.tournamentsOrganized
-
-        res.status(200).json(
-            {status: 'success',
-                data: {
-                username : me.username,
-                email: me.email,
-                teams: messageTournaments,
-                tournaments: messageOrganizer
-
-                }
-            }
-        )
-        next()
-    }catch(err){
-        res.status(400).send({message: 'errore nella ricerca, riprovare'})
-    }
-
-    //si potrebbe aggiungere un campo per modificare alcuni dati dell'utente come la password, ma per la modifica della password bisogna ancora capire bene
-}
-
-

@@ -5,21 +5,51 @@ import '../styles/tournamentsPanel.css'
 
 function SignedUpTournaments() {
     const API_URL = import.meta.env.VITE_API_TOURNAMENTS_URL;
+    const API_USER_URL = import.meta.env.VITE_API_USER_URL;
     const [tournaments, setTournaments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
+    const [newAccessToken, setNewAccessToken] = useState(()=>localStorage.getItem('accessToken'));
 
     useEffect(() => {
-        const fetchMyTournaments = async () => {
+        const fetchMyTournaments = async (accessTokenParam) => {
             try {
-                const accessToken = localStorage.getItem("accessToken");
-                const response = await fetch(`${API_URL}/signedUpTournaments`, {
+                let accessToken = accessTokenParam || localStorage.getItem("accessToken");
+
+                let response = await fetch(`${API_URL}/signedUpTournaments`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
-                        'Authorization': `Bearer ${accessToken}`,
-                    }
+                        "Authorization": `Bearer ${accessToken}`,
+                    },
+                    credentials: "include"
                 });
+
+                // Caso 401: token scaduto, provo refresh
+                if (response.status === 401) {
+                    const responseAccessToken = await fetch(`${API_USER_URL}/refresh`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        credentials: "include"
+                    });
+
+                    const dataNewToken = await responseAccessToken.json();
+
+                    if (responseAccessToken.status === 401) {
+                        console.log('refresh token scaduto, rifare il login');
+                        navigate('/login');
+                        return;
+                    }
+
+                    accessToken = dataNewToken.accessToken;
+                    localStorage.setItem("accessToken", accessToken);
+                    setNewAccessToken(accessToken);
+
+                    return await fetchMyTournaments(accessToken);
+                }
 
                 if (!response.ok) {
                     const error = await response.json();
@@ -27,9 +57,10 @@ function SignedUpTournaments() {
                 }
 
                 const myTournaments = await response.json();
+                console.log(myTournaments);
                 setTournaments(myTournaments);
+                setError(null);
             } catch (error) {
-                console.error("Errore nella fetch:", error);
                 setError(error);
             } finally {
                 setLoading(false);
@@ -37,10 +68,11 @@ function SignedUpTournaments() {
         };
 
         fetchMyTournaments();
-    }, []);
+    }, [newAccessToken]);
+
 
     if (loading) return <p>Caricamento tornei iscritti...</p>;
-    if (error) return <p>Errore: {error.message}</p>;
+    if (error) return <p> {error.message}</p>;
 
     return (
         <>

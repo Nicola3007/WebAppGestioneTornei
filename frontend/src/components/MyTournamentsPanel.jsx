@@ -6,7 +6,7 @@ import '../styles/tournamentsPanel.css'
 function MyTournamentsPanel() {
     const [tournaments, setTournaments] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState(false);
 
     const API_URL = import.meta.env.VITE_API_TOURNAMENTS_URL;
 
@@ -29,10 +29,16 @@ function MyTournamentsPanel() {
                 });
 
                 const data = await response.json();
+
+                if(response.status===400 || response.status===404){
+                    setError(true);
+                }
+
                 setTournaments(data);
+
             } catch (error) {
                 console.log("Errore nella fetch: ", error);
-                setError(error.message);
+                setError(true);
             } finally {
                 setLoading(false);
             }
@@ -48,7 +54,7 @@ function MyTournamentsPanel() {
 
 
     if (loading) return <p>Caricamento tornei</p>;
-    if (error) return <p>Errore: {error}</p>;
+    if (error) return <p className='no-tournaments'>Non hai ancora organizzato nessun torneo!</p>;
 
 
     return (
@@ -72,6 +78,7 @@ function MyTournamentsPanel() {
                         )}
                     />
                 ))}
+
             </div>
         </div>
     );

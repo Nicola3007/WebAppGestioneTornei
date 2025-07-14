@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const user = require('../models/userModel.js');
 const refreshToken = require('../models/refreshTokenModel.js');
 require('dotenv').config();
 
@@ -23,7 +22,7 @@ exports.handleRefreshToken = async (req, res) =>{
         //trovo l'utente nel db
         const foundUser = await refreshToken.findOne({token: refreshTokenCookie});
         if (!foundUser) {
-           return  res.status(403).json({message: 'non autorizzato'})
+           return  res.status(401).json({message: 'refresh token scaduto'})
         }
 //valutazione del refresh token
         jwt.verify(
@@ -32,17 +31,19 @@ exports.handleRefreshToken = async (req, res) =>{
             (err, decoded) => {
                 console.log(decoded.userId);
                 console.log(err);
-                console.log(foundUser.userId.toString());
                 if (err || foundUser.userId.toString() !== decoded.userId) {
                     return res.status(403).json({message: 'non autorizzato, refresh token non valido'})
                 }
 
+                console.log('refresh token valido');
+
                 //se il refresh token è valido genero un nuovo access token
                 const accessToken = jwt.sign(
-                    {'_id': decoded._id},
+                    {'userId': decoded.userId},
                     process.env.ACCESS_TOKEN_SECRET,
-                    {expiresIn: '15m'} //va modificato a 15 minuti
+                    {expiresIn: '15m'}
                 )
+                console.log(accessToken, 'il refresh è avvenuto correttamente');
                 res.json({accessToken: accessToken})
             }
         )

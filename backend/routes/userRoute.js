@@ -7,8 +7,6 @@ const verifyToken = require('../middlewares/verifyJWT')
 route.post('/registrazione',userController.createUser)
 route.post('/login', userController.login);
 route.post('/logout', verifyToken, userController.logout);
-route.get('/personalArea',verifyToken, userController.getMe)
-
 route.post('/refresh', refreshTokenController.handleRefreshToken)
 
 module.exports = route;

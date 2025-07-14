@@ -67,14 +67,14 @@ function Register() {
             <div className='login'>
                 <h1>Registrazione</h1>
                  <form onSubmit={handleSubmit}>
-                    <label>username</label>
-                    <input name='username' type='text' value={registerForm.username} onChange={handleChange} required></input>
-                    <label>email</label>
+                    <label>Username</label>
+                    <input name='username' type='text' placeholder='Username' value={registerForm.username} onChange={handleChange} required></input>
+                    <label>E-mail</label>
                     <input name='email' type='email' placeholder='Email' value={registerForm.email} onChange={handleChange} required></input>
-                    <label>password</label>
+                    <label>Password</label>
                     <input name='password' type='password' placeholder='Password' value={registerForm.password} onChange={handleChange} required></input>
-                    <label>ripeti password</label>
-                    <input name='password_confirmation' type='password' placeholder='Password' value={registerForm.password_confirmation} onChange={handleChange} required></input>
+                    <label>Ripeti password</label>
+                    <input name='password_confirmation' type='password' placeholder='Ripeti password' value={registerForm.password_confirmation} onChange={handleChange} required></input>
 
                     <button type='submit' disabled={registerForm.loading}>{!registerForm.loading? 'Registrati':'Attendi'}</button>
                      {registerForm.error === 'none' && <div className='success'>Utente registrato correttamente!</div>}
@@ -82,7 +82,7 @@ function Register() {
                      {registerForm.error === ''||'none'? null: <div className='error'>{registerForm.error}</div>}
 
                 </form>
-                <div className='register'> <Link to='/login'>Hai già un account? Accedi</Link></div>
+                <div className='redirect-link'> <Link to='/login'>Hai già un account? Accedi</Link></div>
             </div>
         </>
 

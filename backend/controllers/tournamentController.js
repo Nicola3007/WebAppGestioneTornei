@@ -1,6 +1,5 @@
 const Tournament = require('../models/tournamentModel');
 const User = require('../models/userModel');
-
 //funzione helper per settare un attributo status a ogni funzione che sarà aggiunto a ogni chiamata
 function getStatus(tournament) {
     const now = new Date();
@@ -105,7 +104,7 @@ exports.updateTournament = async (req,res) => {
             return res.status(400).json({message: "Non puoi modificare un torneo in corso"});
         }
 
-        const modifiche = [ "name", "location", "startDate", "endDate", "deadline", "description", "prize", "quotaIscrizione", "maxTeams" ];
+        const modifiche = [ "name", "type", "location", "startDate", "endDate", "deadline", "description", "prize", "quotaIscrizione", "maxTeams" ];
         modifiche.forEach( field => {
             if (updates[field] !== undefined){
                 tournament[field] = updates[field];
@@ -120,6 +119,10 @@ exports.updateTournament = async (req,res) => {
     }catch(error){
         if (error.code===11000){
             return res.status(400).json({message: "nome già usato, inserirne un altro"});
+        }
+        if(error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({message: messages.join('. ')});
         }
         console.error("Errore aggiornamento torneo:", error);
         res.status(500).json({message: "Errore del server"});
@@ -236,7 +239,7 @@ exports.joinTournament = async (req, res) => {
             return res.status(400).json({ message: "Nome squadra già utilizzato in questo torneo" });
         }
 
-        const alreadyRegistered = tournament.teams.some(team => team.captain === userId);
+        const alreadyRegistered = tournament.teams.some(team => team.captain.toString() === userId);
 
         if (alreadyRegistered) {
             return res.status(403).json({message: "Hai già iscritto una squadra a questo torneo"});
@@ -256,6 +259,10 @@ exports.joinTournament = async (req, res) => {
 
         await tournament.save();
 
+        await User.findByIdAndUpdate(
+            userId,
+            { $push: { teams: { name: newTeam.name, tournament: tournament._id } } }
+        );
         res.status(200).json({
             message: "Iscrizione avvenuta con successo",
             tournament: tournament,
@@ -273,10 +280,10 @@ exports.joinTournament = async (req, res) => {
 exports.getMySignedUpTournaments = async (req, res) => {
     try {
         const userId = req.userId;
-
+        console.log(req.userId);
         const tournaments = await Tournament.find({ "teams.captain": userId })
             .populate("teams.captain", "username");
-
+        console.log(tournaments);
         if (!tournaments || tournaments.length === 0) {
             return res.status(404).json({ message: "Non sei iscritto a nessun torneo" });
         }

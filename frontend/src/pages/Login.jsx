@@ -67,15 +67,15 @@ function Login({setUser}) {
         <div className="login">
             <h1>Login</h1>
             <form onSubmit={handleSubmit}>
-                <label>e-mail</label>
+                <label>E-mail</label>
                 <input name='email' type='email' placeholder='Email' value ={formData.email} onChange={handleChange} required ></input>
-                <label>password</label>
+                <label>Password</label>
                 <input name='password' type='password' placeholder='Password' value ={formData.password} onChange={handleChange} required ></input>
 
                 <button type='submit' disabled={formData.loading}>{formData.loading ? 'Attendi' : 'Accedi'}</button>
                 {formData.error === 'none'? <Navigate to='/' /> : formData.error === '' ? null: <div className='error'>{formData.error}</div>}
             </form>
-            <div className='register'> <Link to='/register'>Non hai un account? Registrati</Link></div>
+            <div className='redirect-link'> <Link to='/register'>Non hai un account? Registrati</Link></div>
         </div>
     )
 }

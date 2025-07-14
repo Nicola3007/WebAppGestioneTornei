@@ -12,7 +12,7 @@ function Home(){
 
     return (
         <div>
-            <h1>BENVENUTO IN Tpro!</h1>
+            <h1>BENVENUTO IN T-PRO!</h1>
             <p>Organizza o iscriviti a un torneo</p>
             <div className="button-group">
             <button className='create-button' onClick={()=>setShowForm(true)}>CREA UN TORNEO</button>

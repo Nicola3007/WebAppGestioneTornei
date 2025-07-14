@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs')
-const Team = require('../models/teamModel');
 
 
 const userSchema = new mongoose.Schema({
@@ -31,16 +30,19 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    tournamentsOrganized:[{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Tournament'
-    }],
     //teams sono tutte le squadre create e di conseguenza tutti i tornei a cui si ha partecipato
     teams: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Team'
+        name:{
+            type: String,
+            required: true,
+        },
+        tournament: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Tournament',
+            required: true
+        }
     }]
-    //per la sicurezza va capito se va aggiunto qualcosa
+
 })
 
 

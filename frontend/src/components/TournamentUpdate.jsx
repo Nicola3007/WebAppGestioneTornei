@@ -7,6 +7,7 @@ function TournamentUpdate(){
 
 
     const API_URL = import.meta.env.VITE_API_TOURNAMENTS_URL;
+    const API_USER_URL = import.meta.env.VITE_API_USER_URL;
     const location = useLocation();
     const navigate = useNavigate();
     const tournament = location.state.params.tournament;
@@ -42,7 +43,7 @@ function TournamentUpdate(){
 
     const handleDelete = async () => {
         try {
-            const accessToken = localStorage.getItem("accessToken");
+            let accessToken = localStorage.getItem("accessToken");
             const response = await fetch(`${API_URL}/deleteTournament/${tournament._id}`, {
                 method: "DELETE",
                 headers: {
@@ -50,7 +51,30 @@ function TournamentUpdate(){
                     "Authorization": `Bearer ${accessToken}`,
                 },
             });
+            if (response.status === 401) {
 
+                const responseAccessToken = await fetch(`${API_USER_URL}/refresh`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include"
+                });
+
+                const dataNewToken = await responseAccessToken.json();
+
+                if (responseAccessToken.status === 401) {
+                    console.log('refresh token scaduto, rifare il login');
+                    navigate('/login');
+                    return;
+                }
+
+                accessToken = dataNewToken.accessToken;
+                localStorage.setItem("accessToken", accessToken);
+
+                return handleDelete();
+
+            }
             if (!response.ok) {
                 const errorDelete = await response.json();
                 setErrorDelete(errorDelete.message || "Errore eliminazione torneo");
@@ -67,9 +91,9 @@ function TournamentUpdate(){
         }
     };
 
-    const handleUpdate = async (e) => {
+    const handleUpdate = async (e, retry=false) => {
         e.preventDefault();
-        const accessToken = localStorage.getItem("accessToken");
+        let accessToken = localStorage.getItem("accessToken");
         setLoading(true);
 
         try {
@@ -83,9 +107,33 @@ function TournamentUpdate(){
                     ...formData,
                     maxTeams: Number(formData.maxTeams),
                     quotaIscrizione: Number(formData.quotaIscrizione),
-                    isPrivate: formData.isPrivate === true || formData.isPrivate === "true",
                 }),
             });
+
+            if (response.status === 401&&!retry) {
+
+                const responseAccessToken = await fetch(`${API_USER_URL}/refresh`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include"
+                });
+
+                const dataNewToken = await responseAccessToken.json();
+
+                if (responseAccessToken.status === 401) {
+                    console.log('refresh token scaduto, rifare il login');
+                    navigate('/login');
+                    return;
+                }
+
+                accessToken = dataNewToken.accessToken;
+                localStorage.setItem("accessToken", accessToken);
+
+                return handleUpdate(e, true);
+
+            }
 
             if (!response.ok) {
                 const errMsg = await response.json();
@@ -119,28 +167,14 @@ function TournamentUpdate(){
                 <label>Tipo di competizione</label>
                 <select
                     name="type"
-                    type="text"
                     value={formData.type}
                     onChange={handleChange}>
                     <option value="">Seleziona tipo torneo...</option>
                     <option value="Eliminazione diretta">Eliminazione diretta</option>
                     <option value="Girone all'italiana">Girone all'italiana</option>
+                    <option value="Altro">Altro</option>
                 </select>
 
-                <label>Privato:</label>
-                <select
-                    name="isPrivate"
-                    value={formData.isPrivate ? "true" : "false"}
-                    onChange={(e) =>
-                        setFormData((prev) => ({
-                            ...prev,
-                            isPrivate: e.target.value === "true",
-                        }))
-                    }
-                >
-                    <option value="true">Sì</option>
-                    <option value="false">No</option>
-                </select>
                 <label>Data inizio</label>
                 <input
                     name="startDate"

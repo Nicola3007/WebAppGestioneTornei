@@ -1,5 +1,5 @@
 import "./../styles/tournamentCard.css";
-import {BrowserRouter, Routes, Route, useNavigate, Navigate} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import {useState} from "react";
 
 function TournamentCard({
@@ -25,7 +25,7 @@ function TournamentCard({
     const formattedStartDate = new Date(startDate).toLocaleDateString("it-IT");
     const formattedEndDate = new Date(endDate).toLocaleDateString("it-IT");
     const formattedDeadline = new Date(deadline).toLocaleDateString("it-IT");
-
+    const navigate = useNavigate();
     const [nameBar, setNameBar] = useState({
         active: false,
         content: ''
@@ -44,10 +44,18 @@ function TournamentCard({
     }
 
     const API_URL = import.meta.env.VITE_API_TOURNAMENTS_URL
-    const accessToken = localStorage.getItem("accessToken")
+    const API_USER_URL = import.meta.env.VITE_API_USER_URL
+    let accessToken = localStorage.getItem("accessToken")
     const user = JSON.parse(localStorage.getItem("user"))
-    const userId = user._id
+
+    const handleShowTeamName = () => {
+        const myTeam = teams.find((team) => team.captain._id === user._id)
+        return myTeam.name;
+    }
+
+
     const handleSubscribe = async (e) => {
+
         e.preventDefault()
 
         const res = await fetch(`${API_URL}/subscribeTeam/${_id}`, {
@@ -60,13 +68,43 @@ function TournamentCard({
 
         })
         const data = await res.json()
+
         let errorSubscribeMsg = '';
-        if (res.status===400) {
+
+        if (res.status === 401) {
+
+            const responseAccessToken = await fetch(`${API_USER_URL}/refresh`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include"
+            });
+
+            const dataNewToken = await responseAccessToken.json();
+
+            if (responseAccessToken.status === 401) {
+                console.log('refresh token scaduto, rifare il login');
+                navigate('/login');
+                return;
+            }
+
+            accessToken = dataNewToken.accessToken;
+            localStorage.setItem("accessToken", accessToken);
+
+            return handleSubscribe(e);
+
+        }
+
+        if (res.status>=400 && res.status<500) {
             errorSubscribeMsg = JSON.stringify(data.message);
             setErrorSubscribe({
                 errorMessage: errorSubscribeMsg,
                 active: true,
             });
+        }
+        if(res.status===200) {
+            setNameBar({active: false, content: ''});
         }
     }
     const handleFirstSubscribeClick = ()=>{
@@ -77,7 +115,14 @@ function TournamentCard({
     const handleBackButtonClick = () => {
         setNameBar({...nameBar, active: false})
         setFirstButtonSubscribe(true)
+        setErrorSubscribe({
+            errorMessage: '',
+            active: false,})
     }
+
+
+
+
 
     return(
         <div className="tournament-card">
@@ -103,7 +148,7 @@ function TournamentCard({
                 <p>Quota: €{quotaIscrizione}</p>
                 <p>Tipo torneo: {type}</p>
                 <p>Descrizione : {description}</p>
-                {!showButtonUpdate && !showButtonSubscribe && <p>Squadra: {teams[0].name }</p> }
+                {!showButtonUpdate && !showButtonSubscribe && <p>Squadra: {handleShowTeamName()}</p> }
             </div>
 
             <div className="footer">
@@ -128,7 +173,7 @@ function TournamentCard({
                 {
                     nameBar.active &&
                     <form className='subscribe-form' onSubmit={handleSubscribe} >
-                        <label className='label-name' >Inserire nome torneo</label>
+                        <label className='label-name' >Inserire nome della squara</label>
                         <input type='text' name='content' placeholder='Text' className='name-team-input' value={nameBar.content} onChange={handleNameBarChange}></input>
                         <div id= 'button-row'>
                         <button type='submit' className='subscribe-button' >Iscriviti</button>
