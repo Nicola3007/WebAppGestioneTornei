@@ -26,6 +26,7 @@ function TournamentCard({
     const formattedEndDate = new Date(endDate).toLocaleDateString("it-IT");
     const formattedDeadline = new Date(deadline).toLocaleDateString("it-IT");
     const navigate = useNavigate();
+    //per iscrizione
     const [nameBar, setNameBar] = useState({
         active: false,
         content: ''
@@ -48,65 +49,72 @@ function TournamentCard({
     let accessToken = localStorage.getItem("accessToken")
     const user = JSON.parse(localStorage.getItem("user"))
 
+    //per la home mostra il nome della squadra
     const handleShowTeamName = () => {
         const myTeam = teams.find((team) => team.captain._id === user._id)
         return myTeam.name;
     }
 
-
+//per iscrizione
     const handleSubscribe = async (e) => {
-
         e.preventDefault()
 
-        const res = await fetch(`${API_URL}/subscribeTeam/${_id}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${accessToken}`
-            },
-            body: JSON.stringify({teamName: nameBar.content})
+        try {
 
-        })
-        const data = await res.json()
-
-        let errorSubscribeMsg = '';
-
-        if (res.status === 401) {
-
-            const responseAccessToken = await fetch(`${API_USER_URL}/refresh`, {
+            const res = await fetch(`${API_URL}/subscribeTeam/${_id}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken}`
                 },
-                credentials: "include"
-            });
+                body: JSON.stringify({teamName: nameBar.content})
 
-            const dataNewToken = await responseAccessToken.json();
+            })
+            const data = await res.json()
 
-            if (responseAccessToken.status === 401) {
-                console.log('refresh token scaduto, rifare il login');
-                navigate('/login');
-                return;
+            let errorSubscribeMsg = '';
+
+            if (res.status === 401) {
+
+                const responseAccessToken = await fetch(`${API_USER_URL}/refresh`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include"
+                });
+
+                const dataNewToken = await responseAccessToken.json();
+
+                if (responseAccessToken.status === 401) {
+                    console.log('refresh token scaduto, rifare il login');
+                    navigate('/login');
+                    return;
+                }
+
+                accessToken = dataNewToken.accessToken;
+                localStorage.setItem("accessToken", accessToken);
+
+                return handleSubscribe(e);
+
+            }
+            if (res.status >= 400 && res.status < 500) {
+                errorSubscribeMsg = JSON.stringify(data.message);
+                setErrorSubscribe({
+                    errorMessage: errorSubscribeMsg,
+                    active: true,
+                });
             }
 
-            accessToken = dataNewToken.accessToken;
-            localStorage.setItem("accessToken", accessToken);
+            if (res.status === 200) {
+                setNameBar({active: false, content: ''});
+            }
 
-            return handleSubscribe(e);
-
-        }
-
-        if (res.status>=400 && res.status<500) {
-            errorSubscribeMsg = JSON.stringify(data.message);
-            setErrorSubscribe({
-                errorMessage: errorSubscribeMsg,
-                active: true,
-            });
-        }
-        if(res.status===200) {
-            setNameBar({active: false, content: ''});
+        }catch (err) {
+           console.log(err)
         }
     }
+
     const handleFirstSubscribeClick = ()=>{
         setNameBar({...nameBar, active: true})
          setFirstButtonSubscribe(false)
@@ -117,7 +125,10 @@ function TournamentCard({
         setFirstButtonSubscribe(true)
         setErrorSubscribe({
             errorMessage: '',
-            active: false,})
+            active: false,
+        })
+
+
     }
 
 

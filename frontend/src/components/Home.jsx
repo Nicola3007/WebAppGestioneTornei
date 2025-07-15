@@ -16,7 +16,7 @@ function Home(){
             <p>Organizza o iscriviti a un torneo</p>
             <div className="button-group">
             <button className='create-button' onClick={()=>setShowForm(true)}>CREA UN TORNEO</button>
-            <button className='create-button' onClick={()=>navigate('/search-tournaments')}>ISCRIVITI A UN TORNEO</button>
+            <button className='create-button' onClick={()=>navigate('/dashboard/search-tournaments')}>ISCRIVITI A UN TORNEO</button>
             </div>
                 {showForm &&
             <div className='form-content' >

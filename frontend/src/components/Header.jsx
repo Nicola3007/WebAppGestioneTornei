@@ -1,6 +1,6 @@
 import '../styles/header.css'
-import {Navigate, useNavigate} from 'react-router-dom'
-import logo from '../assets/logo.png'
+import { useNavigate} from 'react-router-dom'
+import logo from '../../public/logo.png'
 
 function Header({onLogout}) {
 
@@ -10,7 +10,7 @@ function Header({onLogout}) {
 
     const handleClick = async () => {
        await onLogout()
-        await navigate('/login')
+        navigate('/login')
     }
     return(
         <div className="header">

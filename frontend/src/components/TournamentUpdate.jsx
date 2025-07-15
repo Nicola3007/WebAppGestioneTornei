@@ -91,7 +91,7 @@ function TournamentUpdate(){
         }
     };
 
-    const handleUpdate = async (e, retry=false) => {
+    const handleUpdate = async (e) => {
         e.preventDefault();
         let accessToken = localStorage.getItem("accessToken");
         setLoading(true);
@@ -110,7 +110,7 @@ function TournamentUpdate(){
                 }),
             });
 
-            if (response.status === 401&&!retry) {
+            if (response.status === 401) {
 
                 const responseAccessToken = await fetch(`${API_USER_URL}/refresh`, {
                     method: "POST",
@@ -131,7 +131,7 @@ function TournamentUpdate(){
                 accessToken = dataNewToken.accessToken;
                 localStorage.setItem("accessToken", accessToken);
 
-                return handleUpdate(e, true);
+                return handleUpdate(e);
 
             }
 
@@ -142,7 +142,6 @@ function TournamentUpdate(){
                 throw new Error(errMsg.toString());
             }
 
-            const updateTournaments = await response.json();
             setSuccess(true);
         } catch (error) {
             console.error("Errore nella fetch: ", error);
@@ -159,7 +158,6 @@ function TournamentUpdate(){
                 <input
                     name="name"
                     type="text"
-                    placeholder="Nome torneo"
                     value={formData.name}
                     onChange={handleChange}
                     required
@@ -250,7 +248,7 @@ function TournamentUpdate(){
                 </button>
 
                 </form>
-            {success && <Navigate to="/my-tournaments" /> }
+            {success && <Navigate to="/dashboard/my-tournaments" /> }
             {errorUpdate && <div className="error">{errorUpdate}</div>}
             <button className="delete-button" onClick={()=> setConfirmDelete(true)}>Elimina Torneo</button>
             {confirmDelete && (

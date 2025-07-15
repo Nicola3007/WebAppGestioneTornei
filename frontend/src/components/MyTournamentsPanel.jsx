@@ -19,8 +19,9 @@ function MyTournamentsPanel() {
                 const user = JSON.parse(localStorage.getItem("user"));
                 if (!user || !user._id) {
                 }
-                console.log(user._id);
+
                 console.log(`${API_URL}/search?createdBy=${user._id.toString()}`);
+
                 const response = await fetch(`${API_URL}/search?createdBy=${user._id.toString()}`, {
                     method: "GET",
                     headers: {
@@ -48,10 +49,6 @@ function MyTournamentsPanel() {
 
     }, []);
 
-    useEffect(() => {
-        console.log(tournaments);
-    }, [loading]);
-
 
     if (loading) return <p>Caricamento tornei</p>;
     if (error) return <p className='no-tournaments'>Non hai ancora organizzato nessun torneo!</p>;
@@ -67,7 +64,7 @@ function MyTournamentsPanel() {
                         {...t}
                         showButtonSubscribe={false}
                         showButtonUpdate={true}
-                        onUpdate={()=>navigate('/update-tournaments',
+                        onUpdate={()=>navigate('/dashboard/update-tournaments',
                             {
                                 state: {
                                     params: {

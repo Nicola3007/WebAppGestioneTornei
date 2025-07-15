@@ -22,13 +22,13 @@ function Login({setUser}) {
 
     const  handleSubmit = async (e) => {
 
-        e.preventDefault(); //per evitare il ricaricamento della pagina
+        e.preventDefault();
 
         setFormData({...formData, loading:true}) //imposto il booleano loading a true
 
 
         try{
-            console.log(import.meta.env.VITE_API_USER_URL)
+
             const response = await fetch(`${API_URL}/login`, {
                 method: 'POST',
                 headers: {
@@ -73,7 +73,7 @@ function Login({setUser}) {
                 <input name='password' type='password' placeholder='Password' value ={formData.password} onChange={handleChange} required ></input>
 
                 <button type='submit' disabled={formData.loading}>{formData.loading ? 'Attendi' : 'Accedi'}</button>
-                {formData.error === 'none'? <Navigate to='/' /> : formData.error === '' ? null: <div className='error'>{formData.error}</div>}
+                {formData.error === 'none'? <Navigate to='/dashboard' /> : formData.error === '' ? null: <div className='error'>{formData.error}</div>}
             </form>
             <div className='redirect-link'> <Link to='/register'>Non hai un account? Registrati</Link></div>
         </div>

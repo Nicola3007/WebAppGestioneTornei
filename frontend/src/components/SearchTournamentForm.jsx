@@ -1,6 +1,5 @@
-import{useState, useEffect} from 'react'
+import{useState} from 'react'
 import '../styles/searchTournamentForm.css'
-
 
 function SearchTournamentForm({onSubmit}) {
 
@@ -29,7 +28,7 @@ function SearchTournamentForm({onSubmit}) {
         let queryString = ''
 
         Object.entries(searchForm).forEach(([key, value]) => {
-            console.log(value)
+
             if(value!==''&&value!== null&&value !== undefined) {
                 queryString += `${key}=${value}&`
             }

@@ -1,4 +1,3 @@
-import {useState, useEffect} from 'react'
 import TournamentCard from "./TournamentCard.jsx";
 import '../styles/tournamentsPanel.css'
 

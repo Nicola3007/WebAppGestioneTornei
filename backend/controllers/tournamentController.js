@@ -1,21 +1,23 @@
 const Tournament = require('../models/tournamentModel');
 const User = require('../models/userModel');
+
 //funzione helper per settare un attributo status a ogni funzione che sarà aggiunto a ogni chiamata
+
 function getStatus(tournament) {
     const now = new Date();
-    if (now < tournament.deadline) return "In attesa";
-    if (now >= tournament.deadline && now <= tournament.endDate) return "In corso";
-    if (now > tournament.endDate) return "Completato";
-    return "In attesa"; // fallback
+    if (now <= tournament.deadline) return "In attesa";
+    else return "Completato";
+
 }
 
 
-//CREARE UN TORNEO--> funziona, solo da capire la festione dei tabelloni che non andrebbe fatta qua
+//CREARE UN TORNEO
 exports.createTournament = async (req, res) => {
     try {
         const {
             name, startDate, endDate,type, location, deadline, description, prize, quotaIscrizione, maxTeams
         } = req.body;
+
         const userId = req.userId;
 
         if (!name || !startDate || !endDate || !deadline || !prize || !maxTeams) {
@@ -41,25 +43,27 @@ exports.createTournament = async (req, res) => {
 
         const populatedTournament = await Tournament.findById(newTournament._id).populate('createdBy', 'name');
 
-        res.status(201).json({
+        res.status(200).json({
             message : "Torneo creato con successo",
             tournament: populatedTournament,
         });
     } catch(error){
+
         console.log("Errore creazione torneo:", error)
+
         if (error.name === 'ValidationError') {
             const messages = Object.values(error.errors).map(err => err.message);
             return res.status(400).json({ message: messages.join('. ') });
         }
         if(error.code===11000){
-            console.log('nome già esistente');
+
             return res.status(500).json({message: 'nome del torneo già in uso'})
         }
         res.status(500).json({ message: "Errore del server durante la creazione del torneo." });
     }
 }
 
-//ELIMINARE UN TORNEO--> funziona
+//ELIMINARE UN TORNEO
 exports.deleteTournament = async (req,res) => {
     try{
         const userId = req.userId;
@@ -83,7 +87,7 @@ exports.deleteTournament = async (req,res) => {
     }
 }
 
-//AGGIORNARE UN TORNEO-->funziona
+//AGGIORNARE UN TORNEO
 exports.updateTournament = async (req,res) => {
     try{
         const tournamentId = req.params.id;
@@ -100,7 +104,7 @@ exports.updateTournament = async (req,res) => {
             return res.status(403).json({message: "Non sei autorizzato a modifcare il torneo!"});
         }
 
-        if (['In corso', 'Completato'].includes(tournament.status)) {
+        if (getStatus(tournament)==='Completato') {
             return res.status(400).json({message: "Non puoi modificare un torneo in corso"});
         }
 
@@ -129,7 +133,7 @@ exports.updateTournament = async (req,res) => {
     }}
 
 
-//CERCA TORNEI x nome,data,luogo, tipo, privato, gratis/pagamento, numero squadre-->funziona, da testare comunque col frontend
+//CERCA TORNEI x nome,data,luogo, tipo, gratis/pagamento, numero squadre
 exports.searchTournament = async (req, res) => {
 try {
     const { id, name, location, date, quotaIscrizione, maxTeams, type, createdBy } = req.query;
@@ -165,9 +169,9 @@ try {
     // Cerca per gratis o pagamento
     if (quotaIscrizione !== undefined) {
         if (quotaIscrizione === "true") {
-            query.quotaIscrizione = 0; // tornei a pagamento
+            query.quotaIscrizione = { $gt: 0};// tornei a pagamento
         } else if (quotaIscrizione === "false") {
-            query.quotaIscrizione = { $gt: 0}; // tornei gratis
+            query.quotaIscrizione = 0;// tornei gratis
         } else {
             return res.status(400).json({ message: "Quota non trovata" });
         }
@@ -254,7 +258,7 @@ exports.joinTournament = async (req, res) => {
 
 
         if (tournament.teams.length === tournament.maxTeams) {
-            tournament.status = 'Iscrizioni chiuse';
+            return res.json({...tournament, status: 'Completato'})
         }
 
         await tournament.save();
@@ -280,7 +284,7 @@ exports.joinTournament = async (req, res) => {
 exports.getMySignedUpTournaments = async (req, res) => {
     try {
         const userId = req.userId;
-        console.log(req.userId);
+
         const tournaments = await Tournament.find({ "teams.captain": userId })
             .populate("teams.captain", "username");
         console.log(tournaments);
@@ -300,4 +304,5 @@ exports.getMySignedUpTournaments = async (req, res) => {
         return res.status(500).json({ message: "Errore del server" });
     }
 };
+
 

@@ -1,10 +1,9 @@
-const mongoose = require('mongoose');
 const user = require('../models/userModel.js');
 const jwt = require('jsonwebtoken');
 const RefreshToken = require('../models/refreshTokenModel.js');
 require('dotenv').config();
 
-//funzione helper per la generazione di token --> corretta
+//funzione helper per la generazione di token
 const generateToken = (userId)=>{
     // creazione JWT token
     const accessToken = jwt.sign(
@@ -18,11 +17,12 @@ const generateToken = (userId)=>{
     return {accessToken, refreshToken}
 }
 
-//REGISTRAZIONE--> corretta
+//REGISTRAZIONE
 exports.createUser= async (req, res)=>{
     try{
         const {username, email, password} = req.body;
         const existingUser = await user.findOne({email})
+
         if(existingUser){
             return res.status(404).json({message: ' l\' email è già stata utilizzata'})
         }
@@ -47,7 +47,7 @@ exports.createUser= async (req, res)=>{
 
 }
 
-//LOGIN -->corretto
+//LOGIN
 exports.login = async (req, res)=>{
     try{
         const {email, password} = req.body;
@@ -67,9 +67,8 @@ exports.login = async (req, res)=>{
         }
 
         const {accessToken, refreshToken} = generateToken(findUser._id);
-        console.log({accessToken, refreshToken}) //per il debug
-        console.log(`[LOGIN] Salvataggio refresh token nel DB: ${refreshToken} per utente ${findUser._id}`); //log per il debug
 
+        console.log(accessToken)
 
         await RefreshToken.create({ token: refreshToken, userId: findUser._id }); //salvataggio del refresh token nel db per il controllo e l'eventuale creazione di access token
 
@@ -77,7 +76,7 @@ exports.login = async (req, res)=>{
 
         res.cookie('jwt', refreshToken, {    // creiamo un cookie inserendo nome del cookie, valore inserito e delle opzioni tra cui
             httpOnly: true,                 //httpOnly (per renderlo non disponibile a javascript e quindi più sicuro),
-            sameSite: 'lax', //sameSite che serv a prevenire CSRF e maxAge per quando scade(in ms)--> è inserito lax perchè frontend e beckend girano su porte diverse e il cookie in questo caso con samSite Strict non viene inviato
+            sameSite: 'lax',                //sameSite che serv a prevenire CSRF e maxAge per quando scade(in ms)--> è inserito lax perchè frontend e beckend girano su porte diverse e il cookie in questo caso con samSite Strict non viene inviato
             maxAge: 7*24*60*60*1000
         });
 
@@ -98,13 +97,13 @@ exports.login = async (req, res)=>{
 
 
     }catch(err){
-        return res.status(500).send({message: 'errore nel server, riprovare'})
+        return res.status(500).json({message: 'errore nel server, riprovare'})
     }
 }
 
 //LOGOUT-->corretto
 exports.logout = async (req, res)=>{
-    //nel frontend va eliminato l'access token
+
     console.log('comincia il logout');
     const cookies = req.cookies
     const refreshTokenCookie = cookies.jwt
@@ -119,10 +118,10 @@ exports.logout = async (req, res)=>{
 
         res.clearCookie('jwt', {
             httpOnly: true,
-            sameSite: 'Strict'
+            sameSite: 'lax'
         })
 
-        res.status(200).send({message: 'logout effettuato con successo'})
+        res.status(200).json({message: 'logout effettuato con successo'})
 
 
     }catch{

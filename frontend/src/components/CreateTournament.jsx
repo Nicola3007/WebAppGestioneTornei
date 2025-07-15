@@ -23,8 +23,6 @@ function CreateTournament({handleBackClick}) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
-    const accessToken= localStorage.getItem("accessToken");
-    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const {name, value, checked, type} = e.target;
@@ -64,8 +62,6 @@ function CreateTournament({handleBackClick}) {
                 return;
             }
 
-
-            const createdTournament = await response.json();
             setSuccess(true);
 
             setFormData({
@@ -188,8 +184,7 @@ function CreateTournament({handleBackClick}) {
                 </button>
                 </form>
 
-            {success && <Navigate to="/my-tournaments" />}
-
+            {success && <Navigate to="/dashboard/my-tournaments" />}
             {error && <div className="error">{error}</div>}
         </div>
     );

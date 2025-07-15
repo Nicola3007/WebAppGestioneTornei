@@ -5,9 +5,9 @@ function Navbar() {
 
     return (
         <div className="navbar">
-            <Link to='/home' className='home'>Home</Link>
-            <Link to='/my-tournaments' className='my-tournaments'>I miei tornei</Link>
-            <Link to='/search-tournaments' className='search-tournament'>Cerca torneo</Link>
+            <Link to='/dashboard/home' className='home'>Home</Link>
+            <Link to='/dashboard/my-tournaments' className='my-tournaments'>I miei tornei</Link>
+            <Link to='/dashboard/search-tournaments' className='search-tournament'>Cerca torneo</Link>
         </div>
     )
 }

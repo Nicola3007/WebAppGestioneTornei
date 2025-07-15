@@ -1,6 +1,5 @@
-import {useState, useEffect} from "react";
+import {useState} from "react";
 import '../styles/tournamentsPanel.css'
-import TournamentCard from "./TournamentCard.jsx";
 import SearchTournamentForm from "./SearchTournamentForm.jsx";
 import SearchTournamentPanel from "./SearchTournamentPanel.jsx";
 

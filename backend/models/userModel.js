@@ -25,11 +25,6 @@ const userSchema = new mongoose.Schema({
         minlength: [8, "la password deve avere almeno 8 caratteri"],
         select: false
     },
-     //serve per identificare l'organizzatore di un torneo
-    isOrganizer:{
-        type: Boolean,
-        default: false
-    },
     //teams sono tutte le squadre create e di conseguenza tutti i tornei a cui si ha partecipato
     teams: [{
         name:{

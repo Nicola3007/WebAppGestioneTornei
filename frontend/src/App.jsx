@@ -1,6 +1,5 @@
 import {useEffect, useState,} from 'react'
-import {BrowserRouter, Routes, Route, useNavigate, Navigate} from 'react-router-dom'
-//import './App.css'
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import Dashboard from './pages/Dashboard.jsx'
@@ -8,7 +7,6 @@ import Home from "./components/Home.jsx";
 import MyTournaments from "./components/MyTournaments.jsx";
 import SearchTournaments from "./components/SearchTournament.jsx";
 import TournamentUpdate from "./components/TournamentUpdate.jsx";
-
 
 
 function App() {
@@ -19,12 +17,14 @@ function App() {
     useEffect(() => {
         const user = localStorage.getItem('user')
         const token = localStorage.getItem('accessToken')
-
         if(user&&token){
             setCurrentUser(JSON.parse(user))
+
         }else{
             setCurrentUser(null)
         }
+
+
     }, [])
 
     const handleLogout = async () => {
@@ -62,9 +62,10 @@ function App() {
         <BrowserRouter>
 
             <Routes>
+                <Route path='/' element={<Login setUser={setCurrentUser}/>}></Route>
                 <Route path='/login' element={<Login setUser={setCurrentUser}/>}></Route>
                 <Route  path='/register' element={<Register/>}></Route>
-                <Route path='/' element={<Dashboard onLogout={handleLogout}/>}>
+                <Route path='/dashboard' element={<Dashboard onLogout={handleLogout}/>}>
                     <Route index element={<Home/>}></Route>
                     <Route path="home" element={<Home />} />
                     <Route path="my-tournaments" element={<MyTournaments />} />

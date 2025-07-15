@@ -57,7 +57,7 @@ function SignedUpTournaments() {
                 }
 
                 const myTournaments = await response.json();
-                console.log(myTournaments);
+
                 setTournaments(myTournaments);
                 setError(null);
             } catch (error) {
@@ -79,8 +79,9 @@ function SignedUpTournaments() {
             {tournaments.length === 0 ? (
                 <p>Non sei iscritto a nessun torneo.</p>
             ) : (
+                <>
+                <h1 className='subscribe-title'>Tornei a cui sei iscritto:</h1>
                 <div className="griglia-tornei">
-                    <h1 className='subscribe-title'>Tornei a cui sei iscritto:</h1>
                     {tournaments.map((t) => (
                         <TournamentCard
                             key={t._id}
@@ -88,8 +89,10 @@ function SignedUpTournaments() {
                             showButtonSubscribe={false}
                             showButtonUpdate={false}
                         />
+
                     ))}
                 </div>
+                </>
             )}
         </>
     );
